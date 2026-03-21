@@ -66,6 +66,9 @@ function onNext() { if (!validate()) return; router.push('/page3'); }
               maxlength="10"
             />
             <p v-if="errors.telephone" class="error">{{ errors.telephone }}</p>
+            <p class="caractère">
+            ({{ formStore.telephone.length }} / 10 caractères)
+          </p>
           </div>
 
           <div class="field">
@@ -89,6 +92,9 @@ function onNext() { if (!validate()) return; router.push('/page3'); }
               placeholder="ex: 75001"
               maxlength="5"
             />
+            <p class="caractère">
+            ({{ formStore.codePostal.length }} / 5 caractères)
+          </p>
             <p v-if="errors.codePostal" class="error">{{ errors.codePostal }}</p>
           </div>
 
@@ -123,5 +129,9 @@ function onNext() { if (!validate()) return; router.push('/page3'); }
   color: red;
   font-size: 0.85rem;
   margin-top: 4px;
+}
+
+.caractère {
+  font-size: 0.85rem;
 }
 </style>

@@ -40,7 +40,7 @@ function onNext() {
         <div class="cardTop">
           <button class="back" @click="onBack">← Retour</button>
           <h1>{{ titreExperimentation }}</h1>
-          <div class="stepInfo">étape 6/9</div>
+          <div class="stepInfo">étape 5/9</div>
         </div>
 
         <p class="desc">
