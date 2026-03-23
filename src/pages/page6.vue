@@ -72,6 +72,31 @@ function onNext() { if (!validate()) return; router.push('/page7'); }
             <p v-if="errors.procheNaissance" class="error">{{ errors.procheNaissance }}</p>
           </div>
 
+          <div class="field">
+            <label> Lien avec le proche</label>
+            <select>
+              <option>Voisin</option>
+              <option>Enfant</option>
+              <option>Nièce / Neveu</option>
+              <option>Parent</option>
+              <option>Ami</option>
+              <option>Tante / Oncle</option>
+              <option> Autre </option>
+
+
+
+            </select>
+            <input 
+            v-if="Autre"
+            >
+          </div>
+
+
+
+
+
+
+
           <div class="bottomRow">
             <p class="help">
               En cas de difficulté merci de nous contacter à cette adresse :
