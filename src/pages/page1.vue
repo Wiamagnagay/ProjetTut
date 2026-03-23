@@ -54,9 +54,7 @@ function onNext() {
           <p class="desc">En répondant à ce formulaire, vous acceptez que vos réponses soient enregistrées et que vous puissiez être recontacté par l'équipe RI2S.</p>
           <div class="eta">Temps estimé : 2 min</div>
         </div>
-        <div class="progress">
-          <div class="bar" :style="{ width: progressPercent + '%' }"></div>
-        </div>
+        
         <form class="form" @submit.prevent="onNext">
           <div class="field">
             <label class="label">Prénom<span class="req">*</span></label>

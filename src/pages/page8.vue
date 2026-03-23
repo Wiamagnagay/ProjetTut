@@ -40,7 +40,7 @@ function onNext() { if (!validate()) return; router.push('/page9'); }
         <form class="form" @submit.prevent="onNext">
           <div class="field">
             <label>Informations complémentaires</label>
-            <p class="desc">Je préfère être contacté :</p>
+            <p class="desc">Il préfère être contacté :</p>
             <label><input type="checkbox" value="matin" v-model="formStore.pocheMomentContact" /> Le matin</label>
             <label><input type="checkbox" value="midi" v-model="formStore.pocheMomentContact" /> Le midi</label>
             <label><input type="checkbox" value="apres-midi" v-model="formStore.pocheMomentContact" /> L'après-midi</label>
@@ -55,8 +55,8 @@ function onNext() { if (!validate()) return; router.push('/page9'); }
               :class="{ 'input-error': errors.pocheInfosComplementaires }"
               v-model="formStore.pocheInfosComplementaires"
             />
-            <div class="hint">Obligatoire / ne doit pas comporter d'espaces</div>
-            <p v-if="errors.pocheInfosComplementaires" class="error">{{ errors.pocheInfosComplementaires }}</p>
+            <div class="hint">Obligatoire</div>
+            
           </div>
 
           <div class="bottomRow">

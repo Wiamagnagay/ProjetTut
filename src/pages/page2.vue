@@ -38,7 +38,14 @@ function validate() {
 }
 
 function onBack() { router.push("/page1"); }
-function onNext() { if (!validate()) return; router.push('/page3'); }
+function onNext() {
+  if (!validate()) return;
+  if (formStore.profilSante === 'pro') {
+    router.push('/page3pro');
+  } else {
+    router.push('/page3');
+  }
+}
 </script>
 
 <template>
@@ -57,7 +64,7 @@ function onNext() { if (!validate()) return; router.push('/page3'); }
         <form class="form" @submit.prevent="onNext">
 
           <div class="field">
-            <label>N° de Téléphone *</label>
+          <label class="label">Numéro de telephone <span class="req">*</span></label>  
             <input
               class="input"
               :class="{ 'input-error': errors.telephone }"
@@ -66,13 +73,10 @@ function onNext() { if (!validate()) return; router.push('/page3'); }
               maxlength="10"
             />
             <p v-if="errors.telephone" class="error">{{ errors.telephone }}</p>
-            <p class="caractère">
-            ({{ formStore.telephone.length }} / 10 caractères)
-          </p>
           </div>
 
           <div class="field">
-            <label>Email *</label>
+            <label class="label">Email<span class="req">*</span></label>
             <input
               class="input"
               :class="{ 'input-error': errors.email }"
@@ -84,7 +88,7 @@ function onNext() { if (!validate()) return; router.push('/page3'); }
           </div>
 
           <div class="field">
-            <label>Code postal *</label>
+          <label class="label">Code Postal<span class="req">*</span></label>
             <input
               class="input"
               :class="{ 'input-error': errors.codePostal }"
@@ -92,14 +96,11 @@ function onNext() { if (!validate()) return; router.push('/page3'); }
               placeholder="ex: 75001"
               maxlength="5"
             />
-            <p class="caractère">
-            ({{ formStore.codePostal.length }} / 5 caractères)
-          </p>
             <p v-if="errors.codePostal" class="error">{{ errors.codePostal }}</p>
           </div>
 
           <div class="field">
-            <label>Je suis *</label>
+          <label class="label">Je suis<span class="req">*</span></label>
             <label><input type="radio" value="non_pro" v-model="formStore.profilSante"> Non professionnel</label>
             <label><input type="radio" value="pro" v-model="formStore.profilSante"> Professionnel</label>
             <p v-if="errors.profilSante" class="error">{{ errors.profilSante }}</p>
@@ -130,8 +131,14 @@ function onNext() { if (!validate()) return; router.push('/page3'); }
   font-size: 0.85rem;
   margin-top: 4px;
 }
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-.caractère {
-  font-size: 0.85rem;
+}
+h1 {
+  text-align: center;
+
 }
 </style>
