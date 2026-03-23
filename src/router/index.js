@@ -10,6 +10,7 @@ import Etape6 from '@/pages/page6.vue';
 import Etape7 from '@/pages/page7.vue';
 import Etape8 from '@/pages/page8.vue';
 import Etape9 from '@/pages/page9.vue';
+import Etape6fin from '@/pages/page6fin.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -24,7 +25,9 @@ const router = createRouter({
     { path: '/page7', component: Etape7 },
     { path: '/page8', component: Etape8 },
     { path: '/page9', component: Etape9 },
+    { path: '/page6fin', component: Etape6fin },
   ],
 });
 
 export default router;
+

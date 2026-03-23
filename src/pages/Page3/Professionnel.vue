@@ -36,59 +36,58 @@ function onNext() { if (!validate()) return; router.push("/page4"); }
       <section class="card">
         <div class="cardTop">
           <button class="back" @click="onBack">← Retour</button>
+          <h1>Formulaire de Prise de Contact</h1>
           <div class="stepInfo">étape 3/9</div>
         </div>
-        <h1>Formulaire de Prise de Contact</h1>
         <p class="desc">Informations complémentaires</p>
         <form class="form" @submit.prevent="onNext">
 
           <div class="twoCol">
-            <div class="field">
-              <label>Profession <span class="req">*</span></label>
-              <input class="input" :class="{ 'input-error': errors.profession }" v-model="formStore.profession" />
-              <p v-if="errors.profession" class="error">{{ errors.profession }}</p>
+            <div class="leftCol">
+              <div class="field">
+                <label>Profession <span class="req">*</span></label>
+                <input class="input small" :class="{ 'input-error': errors.profession }" v-model="formStore.profession" />
+                <p v-if="errors.profession" class="error">{{ errors.profession }}</p>
+              </div>
+              <div class="field">
+                <label>Dans quelle ville exercez-vous ? <span class="req">*</span></label>
+                <input class="input small" :class="{ 'input-error': errors.ville }" v-model="formStore.ville" />
+                <p v-if="errors.ville" class="error">{{ errors.ville }}</p>
+              </div>
+              <div class="field">
+                <label>De quelle zone géographique sont issus vos patients ? <span class="req">*</span></label>
+                <input class="input small" :class="{ 'input-error': errors.zone }" v-model="formStore.zone" />
+                <p v-if="errors.zone" class="error">{{ errors.zone }}</p>
+              </div>
+              <div class="field">
+                <label>Dans quel milieu exercez-vous ? <span class="req">*</span></label>
+                <input class="input small" :class="{ 'input-error': errors.milieu }" v-model="formStore.milieu" />
+                <p v-if="errors.milieu" class="error">{{ errors.milieu }}</p>
+              </div>
+              <div class="field">
+                <label>Quel est le nom de votre structure ? <span class="req">*</span></label>
+                <input class="input small" :class="{ 'input-error': errors.structure }" v-model="formStore.structure" />
+                <p v-if="errors.structure" class="error">{{ errors.structure }}</p>
+              </div>
+              <div class="field">
+                <label>Informations complémentaires :</label>
+                <input class="input small" v-model="formStore.infosComplementairesPro" />
+                <div class="hint">Optionnel</div>
+              </div>
             </div>
 
-            <div class="field">
-              <label>Comment avez-vous connu RI2S ? <span class="req">*</span></label>
-              <label><input type="radio" value="structure_partenaire" v-model="formStore.commentConnu" /> Par l'intermédiaire d'une structure partenaire</label>
-              <label><input type="radio" value="linkedin" v-model="formStore.commentConnu" /> Vous nous suivez sur LinkedIn</label>
-              <label><input type="radio" value="confrere" v-model="formStore.commentConnu" /> Par l'intermédiaire d'un confrère</label>
-              <label><input type="radio" value="patient" v-model="formStore.commentConnu" /> Par l'intermédiaire d'un de vos patients</label>
-              <label><input type="radio" value="flyer" v-model="formStore.commentConnu" /> Vous avez reçu un flyer, vu une affiche</label>
-              <label><input type="radio" value="autre" v-model="formStore.commentConnu" /> Autre (précisez à la question suivante)</label>
-              <p v-if="errors.commentConnu" class="error">{{ errors.commentConnu }}</p>
+            <div class="rightCol">
+              <div class="field">
+                <label>Comment avez-vous connu RI2S ?</label>
+                <label><input type="radio" value="structure_partenaire" v-model="formStore.commentConnu" /> Par l'intermédiaire d'une structure partenaire</label>
+                <label><input type="radio" value="linkedin" v-model="formStore.commentConnu" /> Vous nous suivez sur LinkedIn.</label>
+                <label><input type="radio" value="confrere" v-model="formStore.commentConnu" /> Par l'intermédiaire d'un confrère.</label>
+                <label><input type="radio" value="patient" v-model="formStore.commentConnu" /> Par l'intermédiaire d'un de vos patients.</label>
+                <label><input type="radio" value="flyer" v-model="formStore.commentConnu" /> Vous avez reçu un flyer, vu une affiche</label>
+                <label><input type="radio" value="autre" v-model="formStore.commentConnu" /> Autre (précisez à la question suivante)</label>
+                <p v-if="errors.commentConnu" class="error">{{ errors.commentConnu }}</p>
+              </div>
             </div>
-          </div>
-
-          <div class="field">
-            <label>Dans quelle ville exercez-vous ? <span class="req">*</span></label>
-            <input class="input" :class="{ 'input-error': errors.ville }" v-model="formStore.ville" />
-            <p v-if="errors.ville" class="error">{{ errors.ville }}</p>
-          </div>
-
-          <div class="field">
-            <label>De quelle zone géographique sont issus vos patients ? <span class="req">*</span></label>
-            <input class="input" :class="{ 'input-error': errors.zone }" v-model="formStore.zone" />
-            <p v-if="errors.zone" class="error">{{ errors.zone }}</p>
-          </div>
-
-          <div class="field">
-            <label>Dans quel milieu exercez-vous ? <span class="req">*</span></label>
-            <input class="input" :class="{ 'input-error': errors.milieu }" v-model="formStore.milieu" />
-            <p v-if="errors.milieu" class="error">{{ errors.milieu }}</p>
-          </div>
-
-          <div class="field">
-            <label>Quel est le nom de votre structure ? <span class="req">*</span></label>
-            <input class="input" :class="{ 'input-error': errors.structure }" v-model="formStore.structure" />
-            <p v-if="errors.structure" class="error">{{ errors.structure }}</p>
-          </div>
-
-          <div class="field">
-            <label>Informations complémentaires :</label>
-            <input class="input" v-model="formStore.infosComplementairesPro" />
-            <div class="hint">Optionnel</div>
           </div>
 
           <div class="bottomRow">
@@ -107,10 +106,32 @@ function onNext() { if (!validate()) return; router.push("/page4"); }
 </template>
 
 <style scoped>
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+h1 {
+  flex: 1;
+  text-align: center;
+  font-size: 1.5rem;
+}
 .twoCol {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 2rem;
+}
+.leftCol .field {
+  margin-bottom: 0.8rem;
+}
+.input.small {
+  width: 80%;
+}
+.rightCol .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 .input-error {
   border-color: red !important;

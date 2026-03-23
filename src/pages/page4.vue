@@ -25,7 +25,11 @@ function selectCard(value) {
 }
 function onNext() {
   if (!validate()) return;
-  router.push('/page5');
+  if (formStore.experimentationChoisie === 'attente_contact') {
+    router.push('/page6fin');
+  } else {
+    router.push('/page5');
+  }
 }
 </script>
 
