@@ -56,7 +56,7 @@ function onNext() {
                 alt="Telegrafik"
                 style="width: 120px"
               />
-              <ul>
+              <ul class="ListeCriteres">
                 <li>Senior de plus de 70 ans</li>
                 <li>Senior vivant seul(e)</li>
                 <li>Avec aidant</li>
@@ -77,7 +77,7 @@ function onNext() {
                 alt="Présage"
                 style="width: 120px"
               />
-              <ul>
+              <ul class="ListeCriteres">
                 <li>Senior de plus de 75 ans</li>
                 <li>Avec un aidant professionnel ou familial</li>
                 <li>Senior suivi par un médecin traitant</li>
@@ -118,7 +118,13 @@ function onNext() {
     </footer>
   </div>
 </template>
+
 <style scoped>
+h1 {
+  text-align : center;
+  margin-bottom: 20px;
+}
+
 .cards {
   display: flex;
   gap: 16px;
@@ -170,4 +176,13 @@ function onNext() {
   font-weight: bold;
   font-size: 1rem;
 }
+
+.ListeCriteres {
+  padding-left: 20px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 1rem;
+
+}
+
 </style>
