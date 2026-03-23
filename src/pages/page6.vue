@@ -1,8 +1,9 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { formStore } from '../store/formStore';
 
+const lien = ref('');
 const router = useRouter();
 const errors = reactive({ prochePrenom: '', procheNom: '', procheNaissance: '' });
 
@@ -71,31 +72,24 @@ function onNext() { if (!validate()) return; router.push('/page7'); }
             <div class="hint">Obligatoire</div>
             <p v-if="errors.procheNaissance" class="error">{{ errors.procheNaissance }}</p>
           </div>
-
           <div class="field">
-            <label> Lien avec le proche</label>
-            <select>
+            <label>Lien avec le proche <span class="req">*</span></label>
+            <select v-model="lien" id="proches">
+              <option>Ami</option>
               <option>Voisin</option>
               <option>Enfant</option>
-              <option>Nièce / Neveu</option>
               <option>Parent</option>
-              <option>Ami</option>
-              <option>Tante / Oncle</option>
-              <option> Autre </option>
-
-
+              <option>Nièce/Neveu</option>
+              <option>Tante/Oncle</option>
+              <option>Petit-enfant</option>
+              <option>Grand-parent</option>
+              <option>Autre</option>
 
             </select>
-            <input 
-            v-if="Autre"
-            >
+            <div>
+            <input class="input" type="text" v-if="lien === 'Autre'" placeholder="Précisez ici"/>
+            </div>
           </div>
-
-
-
-
-
-
 
           <div class="bottomRow">
             <p class="help">
@@ -125,4 +119,41 @@ function onNext() { if (!validate()) return; router.push('/page7'); }
   font-size: 0.85rem;
   margin-top: 4px;
 }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 300px;
+  font-family: sans-serif;
+}
+
+select {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none; 
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 1em;
+  width:200px;
+  margin-bottom:10px;
+}
+
+
+input[type="text"] {
+  padding: 10px 15px;
+  border: 1px solid #4A90E2;
+  border-radius: 8px;
+  font-size: 14px;
+  animation: fadeIn 0.3s ease-in-out;
+  width:200px;
+}
+
 </style>
