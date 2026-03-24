@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 router.push('/page1')
 </script>
-//thomas
+//thomasTest2
 <template>
   <div></div>
 </template>
