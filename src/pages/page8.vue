@@ -51,7 +51,7 @@ function onNext() { if (!validate()) return; router.push('/page9'); }
               class="input"
               v-model="formStore.pocheInfosComplementaires"
             />
-            <div class="hint">Obligatoire</div>
+            <div class="hint">Optionnel</div>
             
           </div>
 

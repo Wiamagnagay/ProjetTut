@@ -13,10 +13,8 @@ function validate() {
   if (!formStore.momentContact || formStore.momentContact.length === 0) {
     errors.momentContact = "Veuillez choisir au moins une disponibilité";
   }
-  if (formStore.informationsComplementaires.includes(" ")) {
-    errors.informationsComplementaires = "Ne doit pas comporter d'espaces";
-  }
-  return !errors.momentContact && !errors.informationsComplementaires;
+  
+  return !errors.momentContact;
 }
 
 function onBack() { router.push("/page2"); }
@@ -48,7 +46,7 @@ function onNext() { if (!validate()) return; router.push("/page4"); }
           <div class="field">
             <label>Informations complémentaires :</label>
             <input class="input" :class="{ 'input-error': errors.informationsComplementaires }" v-model="formStore.informationsComplementaires" />
-            <div class="hint">Optionnel / ne doit pas comporter d'espaces</div>
+            <div class="hint">Optionnel</div>
             <p v-if="errors.informationsComplementaires" class="error">{{ errors.informationsComplementaires }}</p>
           </div>
           <div class="bottomRow">
