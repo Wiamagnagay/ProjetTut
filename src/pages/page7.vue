@@ -70,20 +70,13 @@ function onNext() { if (!validate()) return; router.push('/page8'); }
             />
             <div class="hint">Ne doit pas comporter d'espaces</div>
             <p v-if="errors.pocheTelephone" class="error">{{ errors.pocheTelephone }}</p>
+            <p class="caractère">
+            ({{ formStore.pocheTelephone.length }} / 10 caractères)
+          </p>
           </div>
 
 
-          <div class="field">
-          <label class="label">Numéro de telephone <span class="req">*</span></label>  
-            <input
-              class="input"
-              :class="{ 'input-error': errors.pocheTelephone }"
-              v-model="formStore.pocheTelephone"
-              placeholder="ex: 0630789037"
-              maxlength="10"
-            />
-            <p v-if="errors.pocheTelephone" class="error">{{ errors.pocheTelephone }}</p>
-          </div>
+          
 
 
 
@@ -109,6 +102,9 @@ function onNext() { if (!validate()) return; router.push('/page8'); }
               maxlength="5"
             />
             <p v-if="errors.procheCodePostal" class="error">{{ errors.procheCodePostal }}</p>
+            <p class="caractère">
+            ({{ formStore.procheCodePostal.length }} / 5 caractères)
+          </p>
           </div>
 
           <div class="bottomRow">
