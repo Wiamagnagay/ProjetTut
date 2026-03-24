@@ -73,6 +73,9 @@ function onNext() {
               maxlength="10"
             />
             <p v-if="errors.telephone" class="error">{{ errors.telephone }}</p>
+            <p class="caractère">
+            ({{ formStore.telephone.length }} / 10 caractères)
+          </p>
           </div>
 
           <div class="field">
@@ -93,10 +96,13 @@ function onNext() {
               class="input"
               :class="{ 'input-error': errors.codePostal }"
               v-model="formStore.codePostal"
-              placeholder="ex: 75001"
+              placeholder="ex: 81100"
               maxlength="5"
             />
             <p v-if="errors.codePostal" class="error">{{ errors.codePostal }}</p>
+            <p class="caractère">
+            ({{ formStore.codePostal.length }} / 5 caractères)
+          </p>
           </div>
 
           <div class="field">
@@ -140,5 +146,9 @@ function onNext() {
 h1 {
   text-align: center;
 
+}
+
+.caractère {
+  font-size: 0.85rem;
 }
 </style>

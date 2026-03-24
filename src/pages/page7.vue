@@ -72,6 +72,21 @@ function onNext() { if (!validate()) return; router.push('/page8'); }
             <p v-if="errors.pocheTelephone" class="error">{{ errors.pocheTelephone }}</p>
           </div>
 
+
+          <div class="field">
+          <label class="label">Numéro de telephone <span class="req">*</span></label>  
+            <input
+              class="input"
+              :class="{ 'input-error': errors.pocheTelephone }"
+              v-model="formStore.pocheTelephone"
+              placeholder="ex: 0630789037"
+              maxlength="10"
+            />
+            <p v-if="errors.pocheTelephone" class="error">{{ errors.pocheTelephone }}</p>
+          </div>
+
+
+
           <div class="field">
             <label>Adresse électronique <span class="req">*</span></label>
             <input
