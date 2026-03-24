@@ -13,10 +13,7 @@ function validate() {
   if (!formStore.pocheMomentContact || formStore.pocheMomentContact.length === 0) {
     errors.pocheMomentContact = 'Veuillez choisir au moins une disponibilité';
   }
-  if (formStore.pocheInfosComplementaires.includes(' ')) {
-    errors.pocheInfosComplementaires = 'Ne doit pas comporter d\'espaces';
-  }
-  return !errors.pocheMomentContact && !errors.pocheInfosComplementaires;
+  return !errors.pocheMomentContact;
 }
 
 function onBack() { router.push('/page7'); }
@@ -52,7 +49,6 @@ function onNext() { if (!validate()) return; router.push('/page9'); }
             <label>Informations complémentaires :</label>
             <input
               class="input"
-              :class="{ 'input-error': errors.pocheInfosComplementaires }"
               v-model="formStore.pocheInfosComplementaires"
             />
             <div class="hint">Obligatoire</div>
