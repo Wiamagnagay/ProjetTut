@@ -1,31 +1,34 @@
 <script setup>
-import { reactive } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { formStore } from '../store/formStore';
 
 const router = useRouter();
-const errors = reactive({ experimentationChoisie: '' });
+const experimentations = ref([]);
+const loading = ref(true);
+const erreurSelection = ref('');
 
-function clearErrors() {
-  errors.experimentationChoisie = '';
-}
+onMounted(async () => {
+  const res = await fetch(
+    'https://formulaire-ri2s-1.onrender.com/api/experimentations'
+  );
+  experimentations.value = await res.json();
+  loading.value = false;
+});
 
-function validate() {
-  clearErrors();
-  if (!formStore.experimentationChoisie)
-    errors.experimentationChoisie = 'Veuillez sélectionner une expérimentation';
-  return !errors.experimentationChoisie;
+function selectCard(idExperimentation) {
+  formStore.experimentationChoisie = String(idExperimentation);
+  erreurSelection.value = '';
 }
 
 function onBack() {
   router.push('/page3');
 }
-function selectCard(value) {
-  formStore.experimentationChoisie = value;
-}
+
 function onNext() {
-  if (!validate()) return;
-  if (formStore.experimentationChoisie === 'attente_contact') {
+  if (!formStore.experimentationChoisie) {
+    router.push('/page5');
+  } else if (formStore.experimentationChoisie === 'attente_contact') {
     router.push('/page6fin');
   } else {
     router.push('/page5');
@@ -35,9 +38,9 @@ function onNext() {
 
 <template>
   <div class="page">
-  <header class="topbar">
-  <img src="@/assets/logoRI2S.png" alt="RI2S" style="height:40px" />
-</header>
+    <header class="topbar">
+      <img src="@/assets/logoRI2S.png" alt="RI2S" style="height: 40px" />
+    </header>
 
     <main class="main">
       <section class="card">
@@ -46,46 +49,36 @@ function onNext() {
           <div class="stepInfo">étape 4/9</div>
         </div>
         <h1>Choix d'une expérimentation</h1>
-        <form class="form" @submit.prevent="onNext">
+
+        <div v-if="loading" class="loading">
+          Chargement des expérimentations...
+        </div>
+
+        <form v-if="!loading" class="form" @submit.prevent="onNext">
           <div class="cards">
             <div
+              v-for="expe in experimentations"
+              :key="expe.idExperimentation"
               class="expCard"
               :class="{
-                selected: formStore.experimentationChoisie === 'telegrafik',
+                selected:
+                  formStore.experimentationChoisie ===
+                  String(expe.idExperimentation),
               }"
-              @click="selectCard('telegrafik')"
+              @click="selectCard(expe.idExperimentation)"
             >
               <img
-                src="@/assets/Telegrafik.png"
-                alt="Telegrafik"
-                style="width: 120px"
+                v-if="expe.urlImage"
+                :src="expe.urlImage"
+                :alt="expe.nomExperimentation"
+                style="width: 120px; margin-bottom: 12px"
               />
-              <ul class="ListeCriteres">
-                <li>Senior de plus de 70 ans</li>
-                <li>Senior vivant seul(e)</li>
-                <li>Avec aidant</li>
-                <li>Senior suivi par un professionnel de santé de proximité</li>
-                <li>Senior vivant dans le Sud du Tarn</li>
-              </ul>
-            </div>
-
-            <div
-              class="expCard"
-              :class="{
-                selected: formStore.experimentationChoisie === 'presage',
-              }"
-              @click="selectCard('presage')"
-            >
-              <img
-                src="@/assets/Presage.png"
-                alt="Présage"
-                style="width: 120px"
-              />
-              <ul class="ListeCriteres">
-                <li>Senior de plus de 75 ans</li>
-                <li>Avec un aidant professionnel ou familial</li>
-                <li>Senior suivi par un médecin traitant</li>
-                <li>Senior vivant dans le Sud du Tarn</li>
+              <h3>{{ expe.nomExperimentation }}</h3>
+              <p class="desc">{{ expe.description }}</p>
+              <ul v-if="expe.criteresInclusion?.length" class="ListeCriteres">
+                <li v-for="(critere, i) in expe.criteresInclusion" :key="i">
+                  {{ critere }}
+                </li>
               </ul>
             </div>
 
@@ -101,9 +94,7 @@ function onNext() {
             </div>
           </div>
 
-          <p v-if="errors.experimentationChoisie" class="error">
-            {{ errors.experimentationChoisie }}
-          </p>
+          <p v-if="erreurSelection" class="error">{{ erreurSelection }}</p>
 
           <div class="bottomRow">
             <p class="help">
@@ -125,18 +116,23 @@ function onNext() {
 
 <style scoped>
 h1 {
-  text-align : center;
+  text-align: center;
   margin-bottom: 20px;
 }
-
+.loading {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+}
 .cards {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
   margin-bottom: 24px;
 }
-
 .expCard {
   flex: 1;
+  min-width: 200px;
   border: 2px solid #ccc;
   border-radius: 12px;
   padding: 16px;
@@ -144,48 +140,36 @@ h1 {
   text-align: center;
   transition: border-color 0.2s;
 }
-
 .expCard:hover {
   border-color: #4caf50;
 }
-
 .expCard.selected {
   border-color: #4caf50;
   background-color: #f0fff0;
 }
-
-.expCard img {
-  width: 120px;
-  margin-bottom: 12px;
-}
-
 .expCard h3 {
   color: #4caf50;
   margin-bottom: 8px;
 }
-
-.expCard ul {
-  text-align: left;
+.expCard .desc {
   font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 8px;
 }
-
+.ListeCriteres {
+  padding-left: 20px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
 .simpleChoice {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .simpleChoice p {
   color: #4caf50;
   font-weight: bold;
   font-size: 1rem;
-}
-
-.ListeCriteres {
-  padding-left: 20px;
-  text-align: left;
-  font-weight: bold;
-  font-size: 1rem;
-
 }
 </style>
