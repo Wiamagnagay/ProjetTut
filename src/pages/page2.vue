@@ -1,58 +1,114 @@
 <script setup>
-import { reactive } from "vue";
-import { useRouter } from "vue-router";
+import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import { formStore } from '../store/formStore';
 
 const router = useRouter();
-const errors = reactive({ telephone: "", email: "", codePostal: "", profilSante: "" });
+const errors = reactive({
+  telephone: '',
+  email: '',
+  codePostal: '',
+  profilSante: '',
+});
 
-function clearErrors() { errors.telephone = ""; errors.email = ""; errors.codePostal = ""; errors.profilSante = ""; }
+function clearErrors() {
+  errors.telephone = '';
+  errors.email = '';
+  errors.codePostal = '';
+  errors.profilSante = '';
+}
 
 function validate() {
   clearErrors();
-
   const telRegex = /^0[1-9][0-9]{8}$/;
-  if (!formStore.telephone.trim()) {
-    errors.telephone = "Téléphone obligatoire";
-  } else if (!telRegex.test(formStore.telephone.trim())) {
-    errors.telephone = "Veuillez vérifier la forme du numéro (ex: 0630789037)";
-  }
+  if (!formStore.telephone?.trim()) errors.telephone = 'Téléphone obligatoire';
+  else if (!telRegex.test(formStore.telephone.trim()))
+    errors.telephone = 'Format invalide';
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!formStore.email.trim()) {
-    errors.email = "Email obligatoire";
-  } else if (!emailRegex.test(formStore.email.trim())) {
-    errors.email = "Veuillez vérifier la forme de l'email (ex: exemple@gmail.com)";
-  }
+  if (!formStore.email?.trim()) errors.email = 'Email obligatoire';
+  else if (!emailRegex.test(formStore.email.trim()))
+    errors.email = 'Format invalide';
 
-  const cpRegex = /^[0-9]{5}$/;
-  if (!formStore.codePostal.trim()) {
-    errors.codePostal = "Code postal obligatoire";
-  } else if (!cpRegex.test(formStore.codePostal.trim())) {
-    errors.codePostal = "Veuillez vérifier le code postal (ex: 75001)";
-  }
+  if (!formStore.codePostal?.trim())
+    errors.codePostal = 'Code postal obligatoire';
+  if (!formStore.profilSante) errors.profilSante = 'Choix obligatoire';
 
-  if (!formStore.profilSante) errors.profilSante = "Choix obligatoire";
-
-  return !errors.telephone && !errors.email && !errors.codePostal && !errors.profilSante;
+  return (
+    !errors.telephone &&
+    !errors.email &&
+    !errors.codePostal &&
+    !errors.profilSante
+  );
 }
 
-function onBack() { router.push("/page1"); }
-function onNext() {
+async function onNext() {
   if (!validate()) return;
-  if (formStore.profilSante === 'pro') {
-    router.push('/page3pro');
-  } else {
-    router.push('/page3');
+
+  const payload = {
+    utilisateur: {
+      nom: formStore.nom.trim().toUpperCase(),
+      prenom: formStore.prenom.trim(),
+      email: formStore.email.trim(),
+      telephone: formStore.telephone.trim(),
+      dateNaissance: formStore.naissance + 'T00:00:00.000Z', 
+      consentement: true,
+    },
+  
+    profilNonPro:
+      formStore.profilSante === 'non_pro'
+        ? {
+            participationExpe: 'OUI',
+            momentsJournee: ['MATIN'], 
+          }
+        : null,
+
+    profilPro:
+      formStore.profilSante === 'pro'
+        ? {
+            nomFonction: 'Professionnel',
+            structure: 'RI2S',
+            participationExpe: 'OUI',
+          }
+        : null,
+
+    demandeExpe: null,
+  };
+
+  try {
+    const response = await fetch(
+      'https://formulaire-ri2s-1.onrender.com/api/utilisateurs/inscription',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Erreur 500');
+    }
+
+    const result = await response.json();
+
+    formStore.idUtilisateurGenere = result.idUtilisateur || result.id;
+
+    router.push(formStore.profilSante === 'pro' ? '/page3pro' : '/page3');
+  } catch (error) {
+    alert(
+      "Le backend refuse toujours. Il faut vérifier avec la personne qui a fait l'API s'il y a un champ secret obligatoire !"
+    );
   }
 }
 </script>
 
 <template>
   <div class="page">
-  <header class="topbar">
-  <img src="@/assets/logoRI2S.png" alt="RI2S" style="height:40px" />
-</header>
+    <header class="topbar">
+      <img src="@/assets/logoRI2S.png" alt="RI2S" style="height: 40px" />
+    </header>
 
     <main class="main">
       <section class="card">
@@ -62,9 +118,10 @@ function onNext() {
         </div>
         <h1>Formulaire de Prise de Contact</h1>
         <form class="form" @submit.prevent="onNext">
-
           <div class="field">
-          <label class="label">Numéro de telephone <span class="req">*</span></label>  
+            <label class="label"
+              >Numéro de telephone <span class="req">*</span></label
+            >
             <input
               class="input"
               :class="{ 'input-error': errors.telephone }"
@@ -74,11 +131,11 @@ function onNext() {
             />
             <p v-if="errors.telephone" class="error">{{ errors.telephone }}</p>
             <p class="caractère">
-            ({{ formStore.telephone.length }} / 10 caractères)
-          </p>
+              ({{ formStore.telephone.length }} / 10 caractères)
+            </p>
           </div>
 
-          <div class="field">
+          <div class="field" id="mail">
             <label class="label">Email<span class="req">*</span></label>
             <input
               class="input"
@@ -91,7 +148,7 @@ function onNext() {
           </div>
 
           <div class="field">
-          <label class="label">Code Postal<span class="req">*</span></label>
+            <label class="label">Code Postal<span class="req">*</span></label>
             <input
               class="input"
               :class="{ 'input-error': errors.codePostal }"
@@ -99,21 +156,42 @@ function onNext() {
               placeholder="ex: 81100"
               maxlength="5"
             />
-            <p v-if="errors.codePostal" class="error">{{ errors.codePostal }}</p>
+            <p v-if="errors.codePostal" class="error">
+              {{ errors.codePostal }}
+            </p>
             <p class="caractère">
-            ({{ formStore.codePostal.length }} / 5 caractères)
-          </p>
+              ({{ formStore.codePostal.length }} / 5 caractères)
+            </p>
           </div>
 
           <div class="field">
-          <label class="label">Je suis<span class="req">*</span></label>
-            <label><input type="radio" value="non_pro" v-model="formStore.profilSante"> Non professionnel</label>
-            <label><input type="radio" value="pro" v-model="formStore.profilSante"> Professionnel</label>
-            <p v-if="errors.profilSante" class="error">{{ errors.profilSante }}</p>
+            <label class="label">Je suis<span class="req">*</span></label>
+            <label
+              ><input
+                type="radio"
+                value="non_pro"
+                v-model="formStore.profilSante"
+              />
+              Non professionnel</label
+            >
+            <label
+              ><input
+                type="radio"
+                value="pro"
+                v-model="formStore.profilSante"
+              />
+              Professionnel</label
+            >
+            <p v-if="errors.profilSante" class="error">
+              {{ errors.profilSante }}
+            </p>
           </div>
 
           <div class="bottomRow">
-            <p class="help">En cas de difficulté merci de nous contacter : <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a></p>
+            <p class="help">
+              En cas de difficulté merci de nous contacter :
+              <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
+            </p>
             <button class="btn" type="submit">Continuer</button>
           </div>
         </form>
@@ -141,14 +219,18 @@ function onNext() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
 }
 h1 {
   text-align: center;
-
+  margin-bottom: 30px;
 }
 
 .caractère {
   font-size: 0.85rem;
 }
+
+#mail {
+  margin-top: -7px;
+}
 </style>
+

@@ -1,30 +1,33 @@
-import { reactive } from 'vue'
+import { reactive } from 'vue';
 
 export const formStore = reactive({
-  // Étape 1
+  dejaInscrit: false,
+  idUtilisateurGenere: null,
+  experimentationsListe: [],
+
   prenom: '',
   nom: '',
   naissance: '',
-  // Étape 2
+
   telephone: '',
   email: '',
   codePostal: '',
   profilSante: '',
-  //etape 3 et 4 
+
   momentContact: [],
-  informationsComplementaires: "",
-  experimentationChoisie: "",
-  //etape 5 
+  informationsComplementaires: '',
+  experimentationChoisie: '',
+
   role: '',
-  // étape 6
-prochePrenom: '',
-procheNom: '',
-procheNaissance: '',
-// étape 7
-pocheTelephone: '',
-procheEmail: '',
-procheCodePostal: '',
-// étape 8
-pocheMomentContact: [],
-pocheInfosComplementaires: '',
-})
+
+  prochePrenom: '',
+  procheNom: '',
+  procheNaissance: '',
+
+  procheTelephone: '',
+  procheEmail: '',
+  procheCodePostal: '',
+
+  procheMomentContact: [],
+  procheInfosComplementaires: '',
+});
