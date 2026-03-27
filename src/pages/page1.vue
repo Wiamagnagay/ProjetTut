@@ -39,7 +39,7 @@ function validate() {
 async function onNext() {
   if (!validate()) return;
 
-  const nomClean = formStore.nom.trim();
+  const nomClean = formStore.nom.trim().toUpperCase(); 
   const prenomClean = formStore.prenom.trim(); 
   const dateClean = formStore.naissance; 
 
@@ -74,6 +74,8 @@ async function onNext() {
     router.push('/page2');
   }
 }
+
+
 </script>
 
 <template>

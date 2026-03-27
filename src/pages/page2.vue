@@ -45,62 +45,13 @@ function validate() {
 async function onNext() {
   if (!validate()) return;
 
-  const payload = {
-    utilisateur: {
-      nom: formStore.nom.trim().toUpperCase(),
-      prenom: formStore.prenom.trim(),
-      email: formStore.email.trim(),
-      telephone: formStore.telephone.trim(),
-      dateNaissance: formStore.naissance + 'T00:00:00.000Z', 
-      consentement: true,
-    },
+  console.log("Données de base stockées, passage à l'étape 3...");
   
-    profilNonPro:
-      formStore.profilSante === 'non_pro'
-        ? {
-            participationExpe: 'OUI',
-            momentsJournee: ['MATIN'], 
-          }
-        : null,
+  router.push(formStore.profilSante === 'pro' ? '/page3pro' : '/page3');
+}
 
-    profilPro:
-      formStore.profilSante === 'pro'
-        ? {
-            nomFonction: 'Professionnel',
-            structure: 'RI2S',
-            participationExpe: 'OUI',
-          }
-        : null,
-
-    demandeExpe: null,
-  };
-
-  try {
-    const response = await fetch(
-      'https://formulaire-ri2s-1.onrender.com/api/utilisateurs/inscription',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error('Erreur 500');
-    }
-
-    const result = await response.json();
-
-    formStore.idUtilisateurGenere = result.idUtilisateur || result.id;
-
-    router.push(formStore.profilSante === 'pro' ? '/page3pro' : '/page3');
-  } catch (error) {
-    alert(
-      "Le backend refuse toujours. Il faut vérifier avec la personne qui a fait l'API s'il y a un champ secret obligatoire !"
-    );
-  }
+function onBack() {
+  router.push('/page1');
 }
 </script>
 
@@ -233,4 +184,3 @@ h1 {
   margin-top: -7px;
 }
 </style>
-
