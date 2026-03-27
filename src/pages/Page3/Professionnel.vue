@@ -22,8 +22,58 @@ function validate() {
   return !errors.profession && !errors.ville && !errors.zone && !errors.milieu && !errors.structure && !errors.commentConnu;
 }
 
-function onBack() { router.push("/page2"); }
-function onNext() { if (!validate()) return; router.push("/page4"); }
+function onBack() { 
+  router.push("/page2"); 
+}
+
+async function onNext() { 
+  if (!validate()) return; 
+
+  const payload = {
+    utilisateur: {
+      nom: formStore.nom.trim().toUpperCase(),
+      prenom: formStore.prenom.trim(),
+      email: formStore.email.trim(),
+      telephone: formStore.telephone.replace(/\s/g, '').trim(),
+      codePostal: Number(formStore.codePostal), 
+      dateNaissance: formStore.naissance + "T00:00:00.000Z", 
+      consentement: true
+    },
+    profilNonPro: null, 
+    
+    profilPro: {
+      nomFonction: formStore.profession.trim(), 
+      structure: formStore.structure.trim(),
+      participationExpe: "OUI" 
+    },
+    
+    profilIndustriel: null,
+    demandeExpe: null
+  };
+
+  try {
+    const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs/inscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur 400 ou 500");
+    }
+
+    const result = await response.json();
+    console.log("Inscription PRO ID :", result.idUtilisateur || result.id);
+    
+    formStore.idUtilisateurGenere = result.idUtilisateur || result.id;
+
+    router.push("/page4"); 
+
+  } catch (error) {
+    console.error("Erreur d'inscription PRO :", error);
+    alert("erreur");
+  }
+}
 </script>
 
 <template>
