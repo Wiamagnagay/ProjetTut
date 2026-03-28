@@ -4,25 +4,35 @@ import { useRouter } from 'vue-router';
 import { formStore } from '../store/formStore';
 
 const router = useRouter();
-const errors = reactive({ pocheTelephone: '', procheEmail: '', procheCodePostal: '' });
+const errors = reactive({
+  procheTelephone: '',
+  procheEmail: '',
+  procheCodePostal: '',
+});
 
-function clearErrors() { errors.pocheTelephone = ''; errors.procheEmail = ''; errors.procheCodePostal = ''; }
+function clearErrors() {
+  errors.procheTelephone = '';
+  errors.procheEmail = '';
+  errors.procheCodePostal = '';
+}
 
 function validate() {
   clearErrors();
 
   const telRegex = /^0[1-9][0-9]{8}$/;
-  if (!formStore.pocheTelephone.trim()) {
-    errors.pocheTelephone = 'Téléphone obligatoire';
-  } else if (!telRegex.test(formStore.pocheTelephone.trim())) {
-    errors.pocheTelephone = 'Veuillez vérifier la forme du numéro (ex: 0630789037)';
+  if (!formStore.procheTelephone.trim()) {
+    errors.procheTelephone = 'Téléphone obligatoire';
+  } else if (!telRegex.test(formStore.procheTelephone.trim())) {
+    errors.procheTelephone =
+      'Veuillez vérifier la forme du numéro (ex: 0630789037)';
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!formStore.procheEmail.trim()) {
     errors.procheEmail = 'Email obligatoire';
   } else if (!emailRegex.test(formStore.procheEmail.trim())) {
-    errors.procheEmail = 'Veuillez vérifier la forme de l\'email (ex: exemple@gmail.com)';
+    errors.procheEmail =
+      "Veuillez vérifier la forme de l'email (ex: exemple@gmail.com)";
   }
 
   const cpRegex = /^[0-9]{5}$/;
@@ -32,18 +42,25 @@ function validate() {
     errors.procheCodePostal = 'Veuillez vérifier le code postal (ex: 75001)';
   }
 
-  return !errors.pocheTelephone && !errors.procheEmail && !errors.procheCodePostal;
+  return (
+    !errors.procheTelephone && !errors.procheEmail && !errors.procheCodePostal
+  );
 }
 
-function onBack() { router.push('/page6'); }
-function onNext() { if (!validate()) return; router.push('/page8'); }
+function onBack() {
+  router.push('/page6');
+}
+function onNext() {
+  if (!validate()) return;
+  router.push('/page8');
+}
 </script>
 
 <template>
   <div class="page">
-  <header class="topbar">
-  <img src="@/assets/logoRI2S.png" alt="RI2S" style="height:40px" />
-</header>
+    <header class="topbar">
+      <img src="@/assets/logoRI2S.png" alt="RI2S" style="height: 40px" />
+    </header>
 
     <main class="main">
       <section class="card">
@@ -60,25 +77,21 @@ function onNext() { if (!validate()) return; router.push('/page8'); }
 
         <form class="form" @submit.prevent="onNext">
           <div class="field">
-            <label>N° de Téléphone <span class="req">*</span></label>
+            <label class="label"
+              >Numéro de telephone <span class="req">*</span></label
+            >
             <input
               class="input"
-              :class="{ 'input-error': errors.pocheTelephone }"
-              v-model="formStore.pocheTelephone"
+              :class="{ 'input-error': errors.telephone }"
+              v-model="formStore.telephone"
               placeholder="ex: 0630789037"
               maxlength="10"
             />
-            <div class="hint">Ne doit pas comporter d'espaces</div>
-            <p v-if="errors.pocheTelephone" class="error">{{ errors.pocheTelephone }}</p>
+            <p v-if="errors.telephone" class="error">{{ errors.telephone }}</p>
             <p class="caractère">
-            ({{ formStore.pocheTelephone.length }} / 10 caractères)
-          </p>
+              ({{ formStore.telephone.length }} / 10 caractères)
+            </p>
           </div>
-
-
-          
-
-
 
           <div class="field">
             <label>Adresse électronique <span class="req">*</span></label>
@@ -89,7 +102,9 @@ function onNext() { if (!validate()) return; router.push('/page8'); }
               v-model="formStore.procheEmail"
               placeholder="ex: exemple@gmail.com"
             />
-            <p v-if="errors.procheEmail" class="error">{{ errors.procheEmail }}</p>
+            <p v-if="errors.procheEmail" class="error">
+              {{ errors.procheEmail }}
+            </p>
           </div>
 
           <div class="field">
@@ -101,10 +116,12 @@ function onNext() { if (!validate()) return; router.push('/page8'); }
               placeholder="ex: 81100"
               maxlength="5"
             />
-            <p v-if="errors.procheCodePostal" class="error">{{ errors.procheCodePostal }}</p>
+            <p v-if="errors.procheCodePostal" class="error">
+              {{ errors.procheCodePostal }}
+            </p>
             <p class="caractère">
-            ({{ formStore.procheCodePostal.length }} / 5 caractères)
-          </p>
+              ({{ formStore.procheCodePostal.length }} / 5 caractères)
+            </p>
           </div>
 
           <div class="bottomRow">
@@ -134,5 +151,9 @@ function onNext() { if (!validate()) return; router.push('/page8'); }
   color: red;
   font-size: 0.85rem;
   margin-top: 4px;
+}
+
+.caractère {
+  font-size: 0.85rem;
 }
 </style>
