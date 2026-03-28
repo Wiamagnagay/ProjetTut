@@ -59,7 +59,7 @@ async function onNext() {
 
     if (!response.ok) {
       const errorMsg = await response.text();
-      console.error(errorMesg);
+      console.error(errorMsg);
       alert(
         'Erreur'
       );
@@ -105,7 +105,14 @@ async function onNext() {
               />
               Le matin</label
             >
-
+            <label
+              ><input
+                type="checkbox"
+                value="MIDI"
+                v-model="formStore.momentContact"
+              />
+              Le midi</label
+            >
             <label
               ><input
                 type="checkbox"

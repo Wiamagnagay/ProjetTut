@@ -78,18 +78,23 @@ function onNext() {
         <form class="form" @submit.prevent="onNext">
           <div class="field">
             <label class="label"
-              >Numéro de telephone <span class="req">*</span></label
+              >Numéro de téléphone <span class="req">*</span></label
             >
             <input
               class="input"
-              :class="{ 'input-error': errors.telephone }"
-              v-model="formStore.telephone"
+              :class="{ 'input-error': errors.procheTelephone }"
+              v-model="formStore.procheTelephone"
               placeholder="ex: 0630789037"
               maxlength="10"
             />
-            <p v-if="errors.telephone" class="error">{{ errors.telephone }}</p>
+            <p v-if="errors.procheTelephone" class="error">
+              {{ errors.procheTelephone }}
+            </p>
             <p class="caractère">
-              ({{ formStore.telephone.length }} / 10 caractères)
+              ({{
+                formStore.procheTelephone ? formStore.procheTelephone.length : 0
+              }}
+              / 10 caractères)
             </p>
           </div>
 
