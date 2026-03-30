@@ -115,28 +115,7 @@ function onBack() {
             </p>
           </div>
 
-          <div class="field">
-            <label class="label">Je suis<span class="req">*</span></label>
-            <label
-              ><input
-                type="radio"
-                value="non_pro"
-                v-model="formStore.profilSante"
-              />
-              Non professionnel</label
-            >
-            <label
-              ><input
-                type="radio"
-                value="pro"
-                v-model="formStore.profilSante"
-              />
-              Professionnel</label
-            >
-            <p v-if="errors.profilSante" class="error">
-              {{ errors.profilSante }}
-            </p>
-          </div>
+          
 
           <div class="bottomRow">
             <p class="help">

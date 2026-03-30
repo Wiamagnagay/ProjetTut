@@ -32,45 +32,57 @@ function validate() {
     errors.nom = 'Le nom ne doit contenir que des lettres et espaces.';
   }
   if (!formStore.naissance) errors.naissance = 'La date de naissance est obligatoire.';
-  
-  return !errors.prenom && !errors.nom && !errors.naissance;
+  if (!formStore.profilSante) {
+    errors.profilSante = 'Veuillez choisir un profil.';
+  }  
+  return !errors.prenom && !errors.nom && !errors.naissance && !errors.profilSante;
 }
 
 async function onNext() {
   if (!validate()) return;
 
   const nomClean = formStore.nom.trim().toUpperCase(); 
-  const prenomClean = formStore.prenom.trim(); 
+  const prenomClean = formStore.prenom.trim().toLowerCase(); 
   const dateClean = formStore.naissance; 
-
-  const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/verification?nom=${encodeURIComponent(nomClean)}&prenom=${encodeURIComponent(prenomClean)}&dateNaissance=${dateClean}`;
-  
+  const profilChoisi = formStore.profilSante; 
 
   try {
-    const response = await fetch(url);
-    const data = await response.json(); 
-    
+    const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs');
+    const tousLesUtilisateurs = await response.json(); 
 
-    let userExiste = false;
+    const utilisateurTrouve = tousLesUtilisateurs.find(user => 
+      user.nom.toUpperCase() === nomClean && 
+      user.prenom.toLowerCase() === prenomClean &&
+      user.dateNaissance.startsWith(dateClean) 
+    );
 
-    if (data === true || data === "true") {
-      userExiste = true;
-    } else if (data && typeof data === 'object' && data.existe === true) {
-      userExiste = true;
-    } else if (data && typeof data === 'object' && String(data.existe) === "true") {
-      userExiste = true;
-    }
+    if (utilisateurTrouve) {
+      let profilDejaExistant = false;
 
-    if (userExiste) {
-      formStore.dejaInscrit = true;
-      router.push('/page4'); 
+      if (profilChoisi === 'pro' && utilisateurTrouve.profilPro !== null) {
+        profilDejaExistant = true;
+      } 
+      else if (profilChoisi === 'non_pro' && utilisateurTrouve.profilNonPro !== null) {
+        profilDejaExistant = true;
+      }
+
+      if (profilDejaExistant) {
+        formStore.dejaInscrit = true;
+        formStore.idUtilisateurGenere = utilisateurTrouve.idUtilisateur; 
+        router.push('/page4'); 
+      } else {
+        formStore.dejaInscrit = false;
+        router.push('/page2'); 
+      }
+
     } else {
       formStore.dejaInscrit = false;
       router.push('/page2');
     }
 
   } catch (error) {
-    console.error("Erreur lors du fetch :", error);
+    console.error("Erreur lors du contournement Front-end :", error);
+    formStore.dejaInscrit = false;
     router.push('/page2');
   }
 }
@@ -121,6 +133,28 @@ async function onNext() {
             <div class="hint">Obligatoire</div>
             <p v-if="errors.naissance" class="error">{{ errors.naissance }}</p>
           </div>
+          <div class="field">
+          <label class="label">Je suis<span class="req">*</span></label>
+          <label
+            ><input
+              type="radio"
+              value="non_pro"
+              v-model="formStore.profilSante"
+            />
+            Non professionnel</label
+          >
+          <label
+            ><input
+              type="radio"
+              value="pro"
+              v-model="formStore.profilSante"
+            />
+            Professionnel</label
+          >
+          <p v-if="errors.profilSante" class="error">
+            {{ errors.profilSante }}
+          </p>
+        </div>
           <div class="bottomRow">
             <p class="help">En cas de difficulté merci de nous contacter : <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a></p>
             <button class="btn" type="submit">Continuer</button>
