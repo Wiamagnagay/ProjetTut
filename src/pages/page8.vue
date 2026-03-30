@@ -29,6 +29,49 @@ function onBack() {
   router.push('/page7');
 }
 
+async function inscrireUtilisateur(id_utilisateur, idExpe, role) {
+  const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${id_utilisateur}/inscriptions?idExpe=${idExpe}&role=${role}`;
+  try {
+    const reponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    });
+
+    if (!reponse.ok) throw new Error(`Erreur ${reponse.status}`);
+    return await reponse.json();
+  } catch (erreur) {
+    console.error("Échec de la liaison à l'expérience :", erreur);
+    return false;
+  }
+}
+
+async function inscrireProcheAExp() {
+  const idExpe = Number(formStore.experimentationChoisie);
+  const rolePrincipal = formStore.role.toUpperCase();
+  const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
+
+  const id_proche = formStore.idProcheGenere; 
+
+  if (!id_proche) {
+    console.error("Impossible d'inscrire le proche : ID manquant !");
+    return false;
+  }
+
+  const inscriptionOk = await inscrireUtilisateur(id_proche, idExpe, roleProche);
+
+  if (inscriptionOk !== false) {
+    console.log("Le proche a bien été relié à l'expérience !");
+    return true;
+  } else {
+    console.error("Échec de la liaison du proche à l'expérience.");
+    return false;
+  }
+}
+
 async function onNext() {
   if (!validate()) return;
 
@@ -65,23 +108,25 @@ async function onNext() {
     if (!response.ok) {
       const errorMsg = await response.text();
       console.error('Erreur serveur proche :', errorMsg);
-      alert(
-        "Le serveur a refusé l'inscription du proche. L'email est peut-être déjà utilisé."
-      );
+      alert("Le serveur a refusé l'inscription du proche.");
       return;
     }
 
     const result = await response.json();
-    console.log(
-      'Inscription proche réussie. ID:',
-      result.idUtilisateur || result.id
-    );
+    console.log('Inscription proche ID:', result.idUtilisateur || result.id);
 
     formStore.idProcheGenere = result.idUtilisateur || result.id;
+    
+    const expeLiee = await inscrireProcheAExp();
 
-    router.push('/page9');
+    if (expeLiee) {
+      router.push('/page9');
+    } else {
+      alert("Le proche a été créé, mais n'a pas pu être relié à l'expérience.");
+    }
+
   } catch (error) {
-    console.error('Erreur réseau :', error);
+    console.error(, error);
   }
 }
 </script>

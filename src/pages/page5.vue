@@ -23,10 +23,55 @@ function validate() {
 function onBack() {
   router.push('/page4');
 }
-function onNext() {
-  if (!validate()) return;
-  router.push('/page6');
+
+async function inscrireUtilisateur(id_utilisateur, idExpe, role) {
+  const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${id_utilisateur}/inscriptions?idExpe=${idExpe}&role=${role}`;
+
+  try {
+    const reponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!reponse.ok) {
+      throw new Error(`Erreur lors de la requête : ${reponse.status}`);
+    }
+
+    const data = await reponse.json();
+    console.log("Inscription réussie", data);
+    return data;
+
+  } catch (erreur) {
+    console.error("l'inscription a échoué :", erreur);
+    return false; 
+  }
 }
+
+async function onNext() {
+  if (!validate()) return;
+
+  const id_utilisateur = formStore.idUtilisateurGenere; 
+  const role = formStore.role.toUpperCase(); 
+
+  const idExpe = Number(formStore.experimentationChoisie);
+
+  if (!id_utilisateur || !idExpe) {
+    errors.role = "Erreur : Données manquantes (Utilisateur ou Expérience).";
+    return;
+  }
+
+  const inscriptionOk = await inscrireUtilisateur(id_utilisateur, idExpe, role);
+
+  if (inscriptionOk !== false) {
+    router.push('/page6');
+  } else {
+    errors.role = "Erreur lors de l'enregistrement. Vérifie la console.";
+  }
+}
+
 </script>
 
 <template>

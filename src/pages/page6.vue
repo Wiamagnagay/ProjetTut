@@ -7,7 +7,11 @@ const lien = ref('');
 const router = useRouter();
 const errors = reactive({ prochePrenom: '', procheNom: '', procheNaissance: '' });
 
-function clearErrors() { errors.prochePrenom = ''; errors.procheNom = ''; errors.procheNaissance = ''; }
+function clearErrors() { 
+  errors.prochePrenom = ''; 
+  errors.procheNom = ''; 
+  errors.procheNaissance = ''; 
+}
 
 function validate() {
   clearErrors();
@@ -17,8 +21,73 @@ function validate() {
   return !errors.prochePrenom && !errors.procheNom && !errors.procheNaissance;
 }
 
-function onBack() { router.push('/page5'); }
-function onNext() { if (!validate()) return; router.push('/page7'); }
+function onBack() { 
+  router.push('/page5'); 
+}
+
+async function inscrireUtilisateurAExp(id_utilisateur, idExpe, role) {
+  const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${id_utilisateur}/inscriptions?idExpe=${idExpe}&role=${role}`;
+  try {
+    const reponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    });
+
+    if (!reponse.ok) throw new Error(`Erreur ${reponse.status}`);
+    return true;
+  } catch (erreur) {
+    console.error( erreur);
+    return false; 
+  }
+}
+
+async function onNext() { 
+  if (!validate()) return; 
+
+  const nomClean = formStore.procheNom.trim().toUpperCase(); 
+  const prenomClean = formStore.prochePrenom.trim().toLowerCase(); 
+  const dateClean = formStore.procheNaissance; 
+
+  try {
+    const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs');
+    const tousLesUtilisateurs = await response.json(); 
+
+    const procheTrouve = tousLesUtilisateurs.find(user => 
+      user.nom.toUpperCase() === nomClean && 
+      user.prenom.toLowerCase() === prenomClean &&
+      user.dateNaissance.startsWith(dateClean) 
+    );
+
+    if (procheTrouve) {
+      console.log("🔍 Proche déjà existant ! ID :", procheTrouve.idUtilisateur);
+      formStore.idProcheGenere = procheTrouve.idUtilisateur;
+      
+      const idExpe = Number(formStore.experimentationChoisie);
+      const rolePrincipal = formStore.role.toUpperCase();
+      const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
+
+      const inscriptionOk = await inscrireUtilisateurAExp(procheTrouve.idUtilisateur, idExpe, roleProche);
+
+      if (inscriptionOk) {
+        console.log("Proche existant");
+        router.push('/page9'); 
+      } else {
+        alert("Le proche a été trouvé, mais une erreur est survenue lors de son inscription à l'expérimentation.");
+      }
+
+    } else {
+      router.push('/page7');
+    }
+
+  } catch (error) {
+    console.error("Erreur lors de la vérification du proche :", error);
+    router.push('/page7');
+  }
+}
 </script>
 
 <template>
