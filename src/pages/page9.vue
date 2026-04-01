@@ -4,17 +4,13 @@ import { formStore } from '../store/formStore';
 
 const router = useRouter();
 
-
-function onSubmit() {
-  console.log('Formulaire envoyé :', formStore);
-}
 </script>
 
 <template>
   <div class="page">
-  <header class="topbar">
-  <img src="@/assets/logoRI2S.png" alt="RI2S" style="height:40px" />
-</header>
+    <header class="topbar">
+      <img src="@/assets/logoRI2S.png" alt="RI2S" style="height: 40px" />
+    </header>
 
     <main class="main">
       <section class="card">
@@ -24,18 +20,15 @@ function onSubmit() {
         </div>
 
         <p class="desc">
-          Nous vous informons que nous avons retrouvé votre proche dans notre base de données grâce à une précédente inscription.
+          Nous vous informons que toutes vos données ont bien été envoyées à l'équipe RI2S.
         </p>
-        <p class="desc">
-          Vous allez être recontacté par l'équipe RI2S.
-        </p>
+        <p class="desc">Vous allez être recontacté par l'équipe RI2S.</p>
 
         <div class="bottomRow">
           <p class="help">
             En cas de difficulté merci de nous contacter à cette adresse :
             <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
           </p>
-          <button class="btn" @click="onSubmit">Envoyer le formulaire</button>
         </div>
       </section>
     </main>

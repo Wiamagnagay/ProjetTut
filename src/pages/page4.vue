@@ -45,6 +45,9 @@ function onNext() {
           <div class="stepInfo">étape 4/9</div>
         </div>
         <h1>Choix d'une expérimentation</h1>
+        <div v-if="formStore.dejaInscrit" class="welcome-back">
+        Ravi de vous revoir, {{ formStore.prenom }} ! <p>Votre profil a été reconnu. Vous pouvez directement choisir votre expérimentation ci-dessous.</p>
+      </div>
 
         <div v-if="loading" class="loading">
           Chargement des expérimentations...
@@ -167,5 +170,21 @@ h1 {
   color: #4caf50;
   font-weight: bold;
   font-size: 1rem;
+}
+
+.welcome-back {
+  background-color: #e8f5e9; 
+  border-left: 5px solid #4caf50;
+  color: #2e7d32;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.welcome-back p {
+  margin: 5px 0 0 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
 }
 </style>

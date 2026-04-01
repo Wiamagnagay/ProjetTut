@@ -35,55 +35,62 @@ async function onNext() {
         utilisateur: {
           nom: formStore.nom.trim().toUpperCase(),
           prenom: formStore.prenom.trim(),
-          email: formStore.email.trim(),
-          telephone: formStore.telephone.replace(/\s/g, '').trim(),
           codePostal: Number(formStore.codePostal),
-          dateNaissance: formStore.naissance + "T00:00:00.000Z", 
-          consentement: true
+          dateNaissance: formStore.naissance + 'T00:00:00.000Z',
+          consentement: true,
         },
         profilNonPro: {
-          participationExpe: "OUI",
-          momentsJournee: JSON.parse(JSON.stringify(formStore.momentContact)) 
+          participationExpe: 'OUI',
+          momentsJournee: JSON.parse(JSON.stringify(formStore.momentContact)),
+          emailNonPro: formStore.email.trim(),
+          telephoneNonPro: formStore.telephone.replace(/\s/g, '').trim(),
         },
         profilPro: null,
-        demandeExpe: null
+        demandeExpe: null,
       };
 
-      const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs/inscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        'https://formulaire-ri2s-1.onrender.com/api/utilisateurs/inscription',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) throw new Error(await response.text());
-      
+
       const result = await response.json();
       formStore.idUtilisateurGenere = result.idUtilisateur || result.id;
-    }
-
-    else if (typeAction === 'ajout_profil_non_pro') {
-      if (!idUtilisateur) throw new Error("ID Utilisateur manquant pour l'ajout de profil");
+    } else if (typeAction === 'ajout_profil_non_pro') {
+      if (!idUtilisateur)
+        throw new Error("ID Utilisateur manquant pour l'ajout de profil");
 
       const payloadNonPro = {
-        participationExpe: "OUI",
-        momentsJournee: JSON.parse(JSON.stringify(formStore.momentContact))
+        participationExpe: 'OUI',
+        momentsJournee: JSON.parse(JSON.stringify(formStore.momentContact)),
+        emailNonPro: formStore.email.trim(),
+        telephoneNonPro: formStore.telephone.replace(/\s/g, '').trim(),
       };
 
-      const response = await fetch(`https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${idUtilisateur}/profil-non-pro`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payloadNonPro),
-      });
+      const response = await fetch(
+        `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${idUtilisateur}/profil-non-pro`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payloadNonPro),
+        }
+      );
 
-      if (!response.ok) throw new Error("Erreur lors de l'ajout du profil non-pro");
+      if (!response.ok)
+        throw new Error("Erreur lors de l'ajout du profil non-pro");
     }
 
     console.log('Profil Non-Pro enregistré avec succès !');
     router.push('/page4');
-
   } catch (error) {
     console.error('Erreur réseau ou serveur :', error);
-    alert('Une erreur est survenue lors de l\'enregistrement.');
+    alert("Une erreur est survenue lors de l'enregistrement.");
   }
 }
 </script>
