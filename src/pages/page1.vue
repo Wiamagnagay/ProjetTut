@@ -104,12 +104,12 @@ async function onNext() {
     <main class="main">
       <section class="card">
         <div class="cardTop">
-          <button class="back" disabled>← Retour</button>
           <div class="stepInfo">étape {{ stepNumber }}/{{ totalSteps }}</div>
         </div>
         <div class="headCenter">
           <h1>Formulaire de Prise de Contact</h1>
           <p class="desc">En répondant à ce formulaire, vous acceptez que vos réponses soient enregistrées et que vous puissiez être recontacté par l'équipe RI2S.</p>
+          <p class="desc">Vos informations sont enregistrées au fur et à mesure de votre progression dans le formulaire. Lorsque c'est le cas, vous ne pourrez plus revenir en arrière.</p>
           <div class="eta">Temps estimé : 2 min</div>
         </div>
         
