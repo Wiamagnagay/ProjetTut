@@ -4,12 +4,9 @@ import { formStore } from '../store/formStore';
 
 const router = useRouter();
 
-function onBack() { router.push('/page8'); }
 
 function onSubmit() {
   console.log('Formulaire envoyé :', formStore);
-  // ici tu pourras ajouter l'appel à ton API plus tard
-  alert('Formulaire envoyé avec succès !');
 }
 </script>
 
@@ -22,7 +19,6 @@ function onSubmit() {
     <main class="main">
       <section class="card">
         <div class="cardTop">
-          <button class="back" @click="onBack">← Retour</button>
           <h1>Merci d'avoir rempli ce formulaire</h1>
           <div class="stepInfo">étape 9/9</div>
         </div>

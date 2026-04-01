@@ -21,9 +21,6 @@ function selectCard(idExperimentation) {
   erreurSelection.value = '';
 }
 
-function onBack() {
-  router.push('/page3');
-}
 
 function onNext() {
   if (!formStore.experimentationChoisie) {
@@ -45,7 +42,6 @@ function onNext() {
     <main class="main">
       <section class="card">
         <div class="cardTop">
-          <button class="back" @click="onBack">← Retour</button>
           <div class="stepInfo">étape 4/9</div>
         </div>
         <h1>Choix d'une expérimentation</h1>

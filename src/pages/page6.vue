@@ -5,24 +5,30 @@ import { formStore } from '../store/formStore';
 
 const lien = ref('');
 const router = useRouter();
-const errors = reactive({ prochePrenom: '', procheNom: '', procheNaissance: '' });
+const errors = reactive({
+  prochePrenom: '',
+  procheNom: '',
+  procheNaissance: '',
+});
 
-function clearErrors() { 
-  errors.prochePrenom = ''; 
-  errors.procheNom = ''; 
-  errors.procheNaissance = ''; 
+function clearErrors() {
+  errors.prochePrenom = '';
+  errors.procheNom = '';
+  errors.procheNaissance = '';
 }
 
 function validate() {
   clearErrors();
-  if (!formStore.prochePrenom.trim()) errors.prochePrenom = 'Prénom obligatoire';
+  if (!formStore.prochePrenom.trim())
+    errors.prochePrenom = 'Prénom obligatoire';
   if (!formStore.procheNom.trim()) errors.procheNom = 'Nom obligatoire';
-  if (!formStore.procheNaissance) errors.procheNaissance = 'Date de naissance obligatoire';
+  if (!formStore.procheNaissance)
+    errors.procheNaissance = 'Date de naissance obligatoire';
   return !errors.prochePrenom && !errors.procheNom && !errors.procheNaissance;
 }
 
-function onBack() { 
-  router.push('/page5'); 
+function onBack() {
+  router.push('/page5');
 }
 
 async function inscrireUtilisateurAExp(id_utilisateur, idExpe, role) {
@@ -31,60 +37,67 @@ async function inscrireUtilisateurAExp(id_utilisateur, idExpe, role) {
     const reponse = await fetch(url, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({})
+      body: JSON.stringify({}),
     });
 
     if (!reponse.ok) throw new Error(`Erreur ${reponse.status}`);
     return true;
   } catch (erreur) {
-    console.error( erreur);
-    return false; 
+    console.error(erreur);
+    return false;
   }
 }
 
-async function onNext() { 
-  if (!validate()) return; 
+async function onNext() {
+  if (!validate()) return;
 
-  const nomClean = formStore.procheNom.trim().toUpperCase(); 
-  const prenomClean = formStore.prochePrenom.trim().toLowerCase(); 
-  const dateClean = formStore.procheNaissance; 
+  const nomClean = formStore.procheNom.trim().toUpperCase();
+  const prenomClean = formStore.prochePrenom.trim().toLowerCase();
+  const dateClean = formStore.procheNaissance;
 
   try {
-    const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs');
-    const tousLesUtilisateurs = await response.json(); 
+    const response = await fetch(
+      'https://formulaire-ri2s-1.onrender.com/api/utilisateurs'
+    );
+    const tousLesUtilisateurs = await response.json();
 
-    const procheTrouve = tousLesUtilisateurs.find(user => 
-      user.nom.toUpperCase() === nomClean && 
-      user.prenom.toLowerCase() === prenomClean &&
-      user.dateNaissance.startsWith(dateClean) 
+    const procheTrouve = tousLesUtilisateurs.find(
+      (user) =>
+        user.nom.toUpperCase() === nomClean &&
+        user.prenom.toLowerCase() === prenomClean &&
+        user.dateNaissance.startsWith(dateClean)
     );
 
     if (procheTrouve) {
-      console.log("🔍 Proche déjà existant ! ID :", procheTrouve.idUtilisateur);
+      console.log('Proche déjà existant ! ID :', procheTrouve.idUtilisateur);
       formStore.idProcheGenere = procheTrouve.idUtilisateur;
-      
+
       const idExpe = Number(formStore.experimentationChoisie);
       const rolePrincipal = formStore.role.toUpperCase();
       const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
 
-      const inscriptionOk = await inscrireUtilisateurAExp(procheTrouve.idUtilisateur, idExpe, roleProche);
+      const inscriptionOk = await inscrireUtilisateurAExp(
+        procheTrouve.idUtilisateur,
+        idExpe,
+        roleProche
+      );
 
       if (inscriptionOk) {
-        console.log("Proche existant");
-        router.push('/page9'); 
+        console.log('Proche existant');
+        router.push('/page9');
       } else {
-        alert("Le proche a été trouvé, mais une erreur est survenue lors de son inscription à l'expérimentation.");
+        alert(
+          "Le proche a été trouvé, mais une erreur est survenue lors de son inscription à l'expérimentation."
+        );
       }
-
     } else {
       router.push('/page7');
     }
-
   } catch (error) {
-    console.error("Erreur lors de la vérification du proche :", error);
+    console.error('Erreur lors de la vérification du proche :', error);
     router.push('/page7');
   }
 }
@@ -92,9 +105,9 @@ async function onNext() {
 
 <template>
   <div class="page">
-  <header class="topbar">
-  <img src="@/assets/logoRI2S.png" alt="RI2S" style="height:40px" />
-</header>
+    <header class="topbar">
+      <img src="@/assets/logoRI2S.png" alt="RI2S" style="height: 40px" />
+    </header>
 
     <main class="main">
       <section class="card">
@@ -117,7 +130,9 @@ async function onNext() {
               :class="{ 'input-error': errors.prochePrenom }"
               v-model="formStore.prochePrenom"
             />
-            <p v-if="errors.prochePrenom" class="error">{{ errors.prochePrenom }}</p>
+            <p v-if="errors.prochePrenom" class="error">
+              {{ errors.prochePrenom }}
+            </p>
           </div>
 
           <div class="field">
@@ -139,7 +154,9 @@ async function onNext() {
               v-model="formStore.procheNaissance"
             />
             <div class="hint">Obligatoire</div>
-            <p v-if="errors.procheNaissance" class="error">{{ errors.procheNaissance }}</p>
+            <p v-if="errors.procheNaissance" class="error">
+              {{ errors.procheNaissance }}
+            </p>
           </div>
           <div class="field">
             <label>Lien avec le proche <span class="req">*</span></label>
@@ -153,10 +170,14 @@ async function onNext() {
               <option>Petit-enfant</option>
               <option>Grand-parent</option>
               <option>Autre</option>
-
             </select>
             <div>
-            <input class="input" type="text" v-if="lien === 'Autre'" placeholder="Précisez ici"/>
+              <input
+                class="input"
+                type="text"
+                v-if="lien === 'Autre'"
+                placeholder="Précisez ici"
+              />
             </div>
           </div>
 
@@ -206,23 +227,21 @@ select {
   color: #333;
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
-  appearance: none; 
+  appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 1em;
-  width:200px;
-  margin-bottom:10px;
+  width: 200px;
+  margin-bottom: 10px;
 }
 
-
-input[type="text"] {
+input[type='text'] {
   padding: 10px 15px;
-  border: 1px solid #4A90E2;
+  border: 1px solid #4a90e2;
   border-radius: 8px;
   font-size: 14px;
   animation: fadeIn 0.3s ease-in-out;
-  width:200px;
+  width: 200px;
 }
-
 </style>
