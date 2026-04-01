@@ -126,7 +126,7 @@ async function onNext() {
     }
 
   } catch (error) {
-    console.error(, error);
+    console.error(error);
   }
 }
 </script>

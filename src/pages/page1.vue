@@ -57,32 +57,37 @@ async function onNext() {
     );
 
     if (utilisateurTrouve) {
+      formStore.idUtilisateurGenere = utilisateurTrouve.idUtilisateur;
+
       let profilDejaExistant = false;
 
       if (profilChoisi === 'pro' && utilisateurTrouve.profilPro !== null) {
         profilDejaExistant = true;
-      } 
-      else if (profilChoisi === 'non_pro' && utilisateurTrouve.profilNonPro !== null) {
+      } else if (profilChoisi === 'non_pro' && utilisateurTrouve.profilNonPro !== null) {
         profilDejaExistant = true;
       }
 
       if (profilDejaExistant) {
         formStore.dejaInscrit = true;
-        formStore.idUtilisateurGenere = utilisateurTrouve.idUtilisateur; 
+        formStore.typeAction = 'connexion'; 
         router.push('/page4'); 
       } else {
         formStore.dejaInscrit = false;
+        formStore.typeAction = profilChoisi === 'pro' ? 'ajout_profil_pro' : 'ajout_profil_non_pro';
         router.push('/page2'); 
       }
 
     } else {
       formStore.dejaInscrit = false;
+      formStore.idUtilisateurGenere = null;
+      formStore.typeAction = 'creation_complete';
       router.push('/page2');
     }
 
   } catch (error) {
     console.error("Erreur lors du contournement Front-end :", error);
     formStore.dejaInscrit = false;
+    formStore.typeAction = 'creation_complete';
     router.push('/page2');
   }
 }
