@@ -27,9 +27,6 @@ function validate() {
   return !errors.prochePrenom && !errors.procheNom && !errors.procheNaissance;
 }
 
-function onBack() {
-  router.push('/page5');
-}
 
 async function inscrireUtilisateurAExp(id_utilisateur, idExpe, role) {
   const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${id_utilisateur}/inscriptions?idExpe=${idExpe}&role=${role}`;
@@ -59,9 +56,7 @@ async function onNext() {
   const dateClean = formStore.procheNaissance;
 
   try {
-    const response = await fetch(
-      'https://formulaire-ri2s-1.onrender.com/api/utilisateurs'
-    );
+    const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs');
     const tousLesUtilisateurs = await response.json();
 
     const procheTrouve = tousLesUtilisateurs.find(
@@ -72,28 +67,28 @@ async function onNext() {
     );
 
     if (procheTrouve) {
-      console.log('Proche déjà existant ! ID :', procheTrouve.idUtilisateur);
+      console.log('Utilisateur existant trouvé ! ID :', procheTrouve.idUtilisateur);
+      
       formStore.idProcheGenere = procheTrouve.idUtilisateur;
 
-      const idExpe = Number(formStore.experimentationChoisie);
-      const rolePrincipal = formStore.role.toUpperCase();
-      const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
+      if (procheTrouve.profilNonPro !== null) {
+        const idExpe = Number(formStore.experimentationChoisie);
+        const rolePrincipal = formStore.role.toUpperCase();
+        const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
 
-      const inscriptionOk = await inscrireUtilisateurAExp(
-        procheTrouve.idUtilisateur,
-        idExpe,
-        roleProche
-      );
+        const inscriptionOk = await inscrireUtilisateurAExp(procheTrouve.idUtilisateur, idExpe, roleProche);
 
-      if (inscriptionOk) {
-        console.log('Proche existant');
-        router.push('/page9');
+        if (inscriptionOk) {
+          router.push('/page9');
+        } else {
+          alert("Erreur lors de l'inscription à l'expérimentation.");
+        }
       } else {
-        alert(
-          "Le proche a été trouvé, mais une erreur est survenue lors de son inscription à l'expérimentation."
-        );
+        router.push('/page7');
       }
+
     } else {
+      formStore.idProcheGenere = null; 
       router.push('/page7');
     }
   } catch (error) {
@@ -112,7 +107,6 @@ async function onNext() {
     <main class="main">
       <section class="card">
         <div class="cardTop">
-          <button class="back" @click="onBack">← Retour</button>
           <h1>Ajouter un proche</h1>
           <div class="stepInfo">étape 6/9</div>
         </div>

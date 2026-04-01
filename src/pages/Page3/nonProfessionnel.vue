@@ -62,9 +62,9 @@ async function onNext() {
 
       const result = await response.json();
       formStore.idUtilisateurGenere = result.idUtilisateur || result.id;
-    } else if (typeAction === 'ajout_profil_non_pro') {
-      if (!idUtilisateur)
-        throw new Error("ID Utilisateur manquant pour l'ajout de profil");
+    } 
+    else if (typeAction === 'ajout_profil_non_pro') {
+      if (!idUtilisateur) throw new Error("ID Utilisateur manquant");
 
       const payloadNonPro = {
         participationExpe: 'OUI',
@@ -82,15 +82,14 @@ async function onNext() {
         }
       );
 
-      if (!response.ok)
-        throw new Error("Erreur lors de l'ajout du profil non-pro");
+      if (!response.ok) throw new Error("Erreur lors de l'ajout du profil");
     }
 
     console.log('Profil Non-Pro enregistré avec succès !');
     router.push('/page4');
   } catch (error) {
     console.error('Erreur réseau ou serveur :', error);
-    alert("Une erreur est survenue lors de l'enregistrement.");
+    alert("Une erreur est survenue. Vérifiez que les champs correspondent au format attendu.");
   }
 }
 </script>

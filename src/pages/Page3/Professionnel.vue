@@ -56,8 +56,6 @@ async function onNext() {
         utilisateur: {
           nom: formStore.nom.trim().toUpperCase(),
           prenom: formStore.prenom.trim(),
-          email: formStore.email.trim(),
-          telephone: formStore.telephone.replace(/\s/g, '').trim(),
           codePostal: Number(formStore.codePostal),
           dateNaissance: formStore.naissance + 'T00:00:00.000Z',
           consentement: true,
@@ -126,7 +124,6 @@ async function onNext() {
       if (!response.ok) throw new Error("Erreur lors de l'ajout du profil pro");
     }
 
-    // Dans tous les cas, succès !
     console.log('Profil PRO enregistré avec succès !');
     router.push('/page4');
   } catch (error) {
