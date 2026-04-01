@@ -1,24 +1,59 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { formStore } from '../store/formStore';
 
 const router = useRouter();
-const experimentations = ref([]);
-const loading = ref(true);
-const erreurSelection = ref('');
 
-onMounted(async () => {
-  const res = await fetch(
-    'https://formulaire-ri2s-1.onrender.com/api/experimentations'
-  );
-  experimentations.value = await res.json();
-  loading.value = false;
+const totalSteps = 8;
+const stepNumber = 4;
+
+const errors = reactive({
+  marche: '',
+  modeleEconomique: '',
+  commercialisation: '',
+  financement: '',
+  concurrents: '',
 });
 
-function selectCard(idExperimentation) {
-  formStore.experimentationChoisie = String(idExperimentation);
-  erreurSelection.value = '';
+function clearErrors() {
+  errors.marche = '';
+  errors.modeleEconomique = '';
+  errors.commercialisation = '';
+  errors.financement = '';
+  errors.concurrents = '';
+}
+
+function validate() {
+  clearErrors();
+
+  if (!formStore.marche?.trim()) {
+    errors.marche = 'Ce champ est obligatoire.';
+  }
+
+  if (!formStore.modeleEconomique?.trim()) {
+    errors.modeleEconomique = 'Ce champ est obligatoire.';
+  }
+
+  if (!formStore.commercialisation?.trim()) {
+    errors.commercialisation = 'Ce champ est obligatoire.';
+  }
+
+  if (!formStore.financement?.trim()) {
+    errors.financement = 'Ce champ est obligatoire.';
+  }
+
+  if (!formStore.concurrents?.trim()) {
+    errors.concurrents = 'Ce champ est obligatoire.';
+  }
+
+  return (
+    !errors.marche &&
+    !errors.modeleEconomique &&
+    !errors.commercialisation &&
+    !errors.financement &&
+    !errors.concurrents
+  );
 }
 
 function onBack() {
@@ -26,75 +61,116 @@ function onBack() {
 }
 
 function onNext() {
-  if (!formStore.experimentationChoisie) {
-    router.push('/page5');
-  } else if (formStore.experimentationChoisie === 'attente_contact') {
-    router.push('/page6fin');
-  } else {
-    router.push('/page5');
-  }
+  if (!validate()) return;
+  router.push('/page5');
 }
 </script>
 
 <template>
   <div class="page">
     <header class="topbar">
-      <img src="@/assets/logoRI2S.png" alt="RI2S" style="height: 40px" />
+      <img src="@/assets/logoRI2S.png" alt="RI2S" class="logo" />
     </header>
 
     <main class="main">
       <section class="card">
         <div class="cardTop">
-          <button class="back" @click="onBack">← Retour</button>
-          <div class="stepInfo">étape 4/9</div>
-        </div>
-        <h1>Choix d'une expérimentation</h1>
-
-        <div v-if="loading" class="loading">
-          Chargement des expérimentations...
+          <button class="back" type="button" @click="onBack">← Retour</button>
+          <div class="stepInfo">étape {{ stepNumber }}/{{ totalSteps }}</div>
         </div>
 
-        <form v-if="!loading" class="form" @submit.prevent="onNext">
-          <div class="cards">
-            <div
-              v-for="expe in experimentations"
-              :key="expe.idExperimentation"
-              class="expCard"
-              :class="{
-                selected:
-                  formStore.experimentationChoisie ===
-                  String(expe.idExperimentation),
-              }"
-              @click="selectCard(expe.idExperimentation)"
-            >
-              <img
-                v-if="expe.urlImage"
-                :src="expe.urlImage"
-                :alt="expe.nomExperimentation"
-                style="width: 120px; margin-bottom: 12px"
-              />
-              <h3>{{ expe.nomExperimentation }}</h3>
-              <p class="desc">{{ expe.description }}</p>
-              <ul v-if="expe.criteresInclusion?.length" class="ListeCriteres">
-                <li v-for="(critere, i) in expe.criteresInclusion" :key="i">
-                  {{ critere }}
-                </li>
-              </ul>
-            </div>
+        <div class="headCenter">
+          <h1>Formulaire de Candidature<br />Entreprise</h1>
+          <p class="desc">
+            En répondant à ce formulaire, vous acceptez que vos réponses soient
+            enregistrées et que vous puissiez être recontacté par l'équipe RI2S.
+          </p>
+        </div>
 
-            <div
-              class="expCard simpleChoice"
-              :class="{
-                selected:
-                  formStore.experimentationChoisie === 'attente_contact',
-              }"
-              @click="selectCard('attente_contact')"
-            >
-              <p>Je ne sais pas. J'attends que RI2S me contacte.</p>
-            </div>
+        <h2 class="sectionTitle">Intégration au marché</h2>
+
+        <form class="form" @submit.prevent="onNext">
+          <div class="field">
+            <label class="label">
+              Quel est votre marché cible ou vos pistes de réflexion à ce sujet
+              ? Quel est le volume d'utilisateur estimé ?<span class="req"
+                >*</span
+              >
+            </label>
+            <input
+              class="input"
+              :class="{ 'input-error': errors.marche }"
+              v-model.trim="formStore.marche"
+              type="text"
+            />
+            <p v-if="errors.marche" class="error">{{ errors.marche }}</p>
           </div>
 
-          <p v-if="erreurSelection" class="error">{{ erreurSelection }}</p>
+          <div class="field">
+            <label class="label">
+              Quel est votre modèle économique ?<span class="req">*</span>
+            </label>
+            <input
+              class="input"
+              :class="{ 'input-error': errors.modeleEconomique }"
+              v-model.trim="formStore.modeleEconomique"
+              type="text"
+            />
+            <p v-if="errors.modeleEconomique" class="error">
+              {{ errors.modeleEconomique }}
+            </p>
+          </div>
+
+          <div class="field">
+            <label class="label">
+              Votre solution est-elle déjà commercialisée ? Si oui, précisez le
+              nombre et type de clients. Utilisée hors commercialisation ?<span
+                class="req"
+                >*</span
+              >
+            </label>
+            <input
+              class="input"
+              :class="{ 'input-error': errors.commercialisation }"
+              v-model.trim="formStore.commercialisation"
+              type="text"
+            />
+            <p v-if="errors.commercialisation" class="error">
+              {{ errors.commercialisation }}
+            </p>
+          </div>
+
+          <div class="field">
+            <label class="label">
+              Actuellement, comment votre entreprise est-elle financée et
+              comment le sera-t-elle à moyen terme ?<span class="req">*</span>
+            </label>
+            <input
+              class="input"
+              :class="{ 'input-error': errors.financement }"
+              v-model.trim="formStore.financement"
+              type="text"
+            />
+            <p v-if="errors.financement" class="error">
+              {{ errors.financement }}
+            </p>
+          </div>
+
+          <div class="field">
+            <label class="label">
+              Quels sont vos principaux concurrents et en quoi votre solution se
+              distingue-t-elle ?<span class="req">*</span>
+            </label>
+            <input
+              class="input"
+              :class="{ 'input-error': errors.concurrents }"
+              v-model.trim="formStore.concurrents"
+              type="text"
+            />
+            <p v-if="errors.concurrents" class="error">
+              {{ errors.concurrents }}
+            </p>
+          </div>
 
           <div class="bottomRow">
             <p class="help">
@@ -115,61 +191,209 @@ function onNext() {
 </template>
 
 <style scoped>
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
+* {
+  box-sizing: border-box;
 }
-.loading {
-  text-align: center;
-  color: #888;
-  padding: 20px;
-}
-.cards {
+
+.page {
+  min-height: 100vh;
+  background: #f4f4f4;
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
+  flex-direction: column;
 }
-.expCard {
-  flex: 1;
-  min-width: 200px;
-  border: 2px solid #ccc;
-  border-radius: 12px;
-  padding: 16px;
-  cursor: pointer;
-  text-align: center;
-  transition: border-color 0.2s;
-}
-.expCard:hover {
-  border-color: #4caf50;
-}
-.expCard.selected {
-  border-color: #4caf50;
-  background-color: #f0fff0;
-}
-.expCard h3 {
-  color: #4caf50;
-  margin-bottom: 8px;
-}
-.expCard .desc {
-  font-size: 0.85rem;
-  color: #555;
-  margin-bottom: 8px;
-}
-.ListeCriteres {
-  padding-left: 20px;
-  text-align: left;
-  font-weight: bold;
-  font-size: 0.9rem;
-}
-.simpleChoice {
+
+.topbar {
+  height: 70px;
+  background: white;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 0 48px;
+  border-bottom: 1px solid #e5e5e5;
 }
-.simpleChoice p {
-  color: #4caf50;
-  font-weight: bold;
-  font-size: 1rem;
+
+.logo {
+  height: 42px;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 1150px;
+  background: #f7f7f7;
+  border: 2px solid #5cab53;
+  border-radius: 32px;
+  padding: 40px 44px 30px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.back {
+  background: #eef4ea;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: #6da35e;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.stepInfo {
+  font-size: 24px;
+  color: #2f3b52;
+}
+
+.headCenter {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.headCenter h1 {
+  font-size: 52px;
+  line-height: 1.05;
+  color: #25324b;
+  margin: 0 0 22px;
+  font-weight: 700;
+}
+
+.desc {
+  max-width: 860px;
+  margin: 0 auto;
+  color: #3f4b5f;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.sectionTitle {
+  margin: 0 0 10px;
+  color: #25324b;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.form {
+  margin-top: 8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.label {
+  font-size: 13px;
+  color: #1c1c1c;
+  margin-bottom: 6px;
+}
+
+.req {
+  color: #d62828;
+  margin-left: 2px;
+}
+
+.input {
+  width: 100%;
+  height: 40px;
+  border: 2px solid #9db7bf;
+  border-radius: 20px;
+  padding: 10px 16px;
+  background: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.bottomRow {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.help {
+  margin: 0;
+  color: #a52020;
+  font-size: 12px;
+}
+
+.help a {
+  color: #a52020;
+  text-decoration: none;
+}
+
+.btn {
+  min-width: 145px;
+  height: 48px;
+  background: #69b34c;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.footer {
+  text-align: center;
+  font-size: 13px;
+  color: #4c5668;
+  padding: 18px 10px 14px;
+}
+
+.footer a {
+  display: block;
+  margin-bottom: 8px;
+  color: #3d63c8;
+  text-decoration: none;
+}
+
+.input-error {
+  border-color: red !important;
+}
+
+.error {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    height: auto;
+    gap: 10px;
+    padding: 18px;
+  }
+
+  .card {
+    padding: 24px 20px;
+  }
+
+  .headCenter h1 {
+    font-size: 34px;
+  }
+
+  .bottomRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }
 </style>

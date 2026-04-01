@@ -3,161 +3,255 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { formStore } from '../store/formStore';
 
-const lien = ref('');
 const router = useRouter();
-const errors = reactive({ prochePrenom: '', procheNom: '', procheNaissance: '' });
 
-function clearErrors() { 
-  errors.prochePrenom = ''; 
-  errors.procheNom = ''; 
-  errors.procheNaissance = ''; 
+const totalSteps = 8;
+const stepNumber = 6;
+
+const selectedFileName = ref('');
+
+const errors = reactive({
+  trl: '',
+  justificationTRL: '',
+  dispositifMedical: '',
+  justificationDispositif: '',
+  classeDispositif: '',
+});
+
+function clearErrors() {
+  errors.trl = '';
+  errors.justificationTRL = '';
+  errors.dispositifMedical = '';
+  errors.justificationDispositif = '';
+  errors.classeDispositif = '';
+}
+
+function onFileChange(event) {
+  const file = event.target.files?.[0] || null;
+  formStore.schemaTechnique = file;
+  selectedFileName.value = file ? file.name : '';
 }
 
 function validate() {
   clearErrors();
-  if (!formStore.prochePrenom.trim()) errors.prochePrenom = 'Prénom obligatoire';
-  if (!formStore.procheNom.trim()) errors.procheNom = 'Nom obligatoire';
-  if (!formStore.procheNaissance) errors.procheNaissance = 'Date de naissance obligatoire';
-  return !errors.prochePrenom && !errors.procheNom && !errors.procheNaissance;
-}
 
-function onBack() { 
-  router.push('/page5'); 
-}
-
-async function inscrireUtilisateurAExp(id_utilisateur, idExpe, role) {
-  const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${id_utilisateur}/inscriptions?idExpe=${idExpe}&role=${role}`;
-  try {
-    const reponse = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({})
-    });
-
-    if (!reponse.ok) throw new Error(`Erreur ${reponse.status}`);
-    return true;
-  } catch (erreur) {
-    console.error( erreur);
-    return false; 
+  if (!formStore.trl) {
+    errors.trl = 'Veuillez sélectionner un niveau TRL.';
   }
+
+  if (!formStore.justificationTRL?.trim()) {
+    errors.justificationTRL = 'Ce champ est obligatoire.';
+  }
+
+  if (!formStore.dispositifMedical?.trim()) {
+    errors.dispositifMedical = 'Veuillez choisir une réponse.';
+  }
+
+  if (!formStore.justificationDispositif?.trim()) {
+    errors.justificationDispositif = 'Ce champ est obligatoire.';
+  }
+
+  if (
+    formStore.dispositifMedical === 'oui' &&
+    !formStore.classeDispositif?.trim()
+  ) {
+    errors.classeDispositif = 'Veuillez préciser la classe.';
+  }
+
+  return (
+    !errors.trl &&
+    !errors.justificationTRL &&
+    !errors.dispositifMedical &&
+    !errors.justificationDispositif &&
+    !errors.classeDispositif
+  );
 }
 
-async function onNext() { 
-  if (!validate()) return; 
+function onBack() {
+  router.push('/page5');
+}
 
-  const nomClean = formStore.procheNom.trim().toUpperCase(); 
-  const prenomClean = formStore.prochePrenom.trim().toLowerCase(); 
-  const dateClean = formStore.procheNaissance; 
-
-  try {
-    const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs');
-    const tousLesUtilisateurs = await response.json(); 
-
-    const procheTrouve = tousLesUtilisateurs.find(user => 
-      user.nom.toUpperCase() === nomClean && 
-      user.prenom.toLowerCase() === prenomClean &&
-      user.dateNaissance.startsWith(dateClean) 
-    );
-
-    if (procheTrouve) {
-      console.log("🔍 Proche déjà existant ! ID :", procheTrouve.idUtilisateur);
-      formStore.idProcheGenere = procheTrouve.idUtilisateur;
-      
-      const idExpe = Number(formStore.experimentationChoisie);
-      const rolePrincipal = formStore.role.toUpperCase();
-      const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
-
-      const inscriptionOk = await inscrireUtilisateurAExp(procheTrouve.idUtilisateur, idExpe, roleProche);
-
-      if (inscriptionOk) {
-        console.log("Proche existant");
-        router.push('/page9'); 
-      } else {
-        alert("Le proche a été trouvé, mais une erreur est survenue lors de son inscription à l'expérimentation.");
-      }
-
-    } else {
-      router.push('/page7');
-    }
-
-  } catch (error) {
-    console.error("Erreur lors de la vérification du proche :", error);
-    router.push('/page7');
-  }
+function onNext() {
+  if (!validate()) return;
+  router.push('/page7');
 }
 </script>
 
 <template>
   <div class="page">
-  <header class="topbar">
-  <img src="@/assets/logoRI2S.png" alt="RI2S" style="height:40px" />
-</header>
+    <header class="topbar">
+      <img src="@/assets/logo.png" alt="RI2S" class="logo" />
+    </header>
 
     <main class="main">
       <section class="card">
         <div class="cardTop">
-          <button class="back" @click="onBack">← Retour</button>
-          <h1>Ajouter un proche</h1>
-          <div class="stepInfo">étape 6/9</div>
+          <button class="back" type="button" @click="onBack">← Retour</button>
+          <div class="stepInfo">étape {{ stepNumber }}/{{ totalSteps }}</div>
         </div>
 
-        <p class="desc">
-          En répondant à ce formulaire, vous acceptez que vos réponses soient
-          enregistrées et que vous puissiez être recontacté par l'équipe RI2S.
-        </p>
+        <div class="headCenter">
+          <h1>Formulaire de Candidature<br />Entreprise</h1>
+          <p class="desc">
+            En répondant à ce formulaire, vous acceptez que vos réponses soient
+            enregistrées et que vous puissiez être recontacté par l'équipe RI2S.
+          </p>
+        </div>
+
+        <h2 class="sectionTitle">Technologie et niveau de maturité</h2>
 
         <form class="form" @submit.prevent="onNext">
           <div class="field">
-            <label>Prénom <span class="req">*</span></label>
-            <input
-              class="input"
-              :class="{ 'input-error': errors.prochePrenom }"
-              v-model="formStore.prochePrenom"
-            />
-            <p v-if="errors.prochePrenom" class="error">{{ errors.prochePrenom }}</p>
-          </div>
+            <label class="label uploadLabel">
+              Si pertinent, joindre un schéma technique de la solution.
+            </label>
 
-          <div class="field">
-            <label>Nom <span class="req">*</span></label>
-            <input
-              class="input"
-              :class="{ 'input-error': errors.procheNom }"
-              v-model="formStore.procheNom"
-            />
-            <p v-if="errors.procheNom" class="error">{{ errors.procheNom }}</p>
-          </div>
-
-          <div class="field">
-            <label>Date de naissance <span class="req">*</span></label>
-            <input
-              class="input"
-              :class="{ 'input-error': errors.procheNaissance }"
-              type="date"
-              v-model="formStore.procheNaissance"
-            />
-            <div class="hint">Obligatoire</div>
-            <p v-if="errors.procheNaissance" class="error">{{ errors.procheNaissance }}</p>
-          </div>
-          <div class="field">
-            <label>Lien avec le proche <span class="req">*</span></label>
-            <select v-model="lien" id="proches">
-              <option>Ami</option>
-              <option>Voisin</option>
-              <option>Enfant</option>
-              <option>Parent</option>
-              <option>Nièce/Neveu</option>
-              <option>Tante/Oncle</option>
-              <option>Petit-enfant</option>
-              <option>Grand-parent</option>
-              <option>Autre</option>
-
-            </select>
-            <div>
-            <input class="input" type="text" v-if="lien === 'Autre'" placeholder="Précisez ici"/>
+            <div class="uploadWrapper">
+              <label
+                for="schema-upload"
+                class="uploadButton"
+                title="Ajouter un fichier"
+              >
+                📄
+              </label>
+              <input
+                id="schema-upload"
+                class="fileInput"
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                @change="onFileChange"
+              />
+              <span v-if="selectedFileName" class="fileName">{{
+                selectedFileName
+              }}</span>
             </div>
+          </div>
+
+          <div class="field">
+            <label class="label">
+              Quel est le TRL de votre solution ?<span class="req">*</span>
+            </label>
+
+            <div class="trlGrid" :class="{ 'radio-error-box': errors.trl }">
+              <label class="radioItem"
+                ><input type="radio" value="1" v-model="formStore.trl" />
+                <span>1</span></label
+              >
+              <label class="radioItem"
+                ><input type="radio" value="4" v-model="formStore.trl" />
+                <span>4</span></label
+              >
+              <label class="radioItem"
+                ><input type="radio" value="7" v-model="formStore.trl" />
+                <span>7</span></label
+              >
+
+              <label class="radioItem"
+                ><input type="radio" value="2" v-model="formStore.trl" />
+                <span>2</span></label
+              >
+              <label class="radioItem"
+                ><input type="radio" value="5" v-model="formStore.trl" />
+                <span>5</span></label
+              >
+              <label class="radioItem"
+                ><input type="radio" value="8" v-model="formStore.trl" />
+                <span>8</span></label
+              >
+
+              <label class="radioItem"
+                ><input type="radio" value="3" v-model="formStore.trl" />
+                <span>3</span></label
+              >
+              <label class="radioItem"
+                ><input type="radio" value="6" v-model="formStore.trl" />
+                <span>6</span></label
+              >
+              <label class="radioItem"
+                ><input type="radio" value="9" v-model="formStore.trl" />
+                <span>9</span></label
+              >
+            </div>
+            <p v-if="errors.trl" class="error">{{ errors.trl }}</p>
+          </div>
+
+          <div class="field">
+            <label class="label">
+              Pouvez-vous le justifier? Où en êtes-vous?<span class="req"
+                >*</span
+              >
+            </label>
+            <input
+              class="input"
+              :class="{ 'input-error': errors.justificationTRL }"
+              v-model.trim="formStore.justificationTRL"
+              type="text"
+            />
+            <p v-if="errors.justificationTRL" class="error">
+              {{ errors.justificationTRL }}
+            </p>
+          </div>
+
+          <div class="field">
+            <label class="label">
+              La technologie proposée répond-elle à la définition d’un
+              dispositif médical?<span class="req">*</span>
+            </label>
+
+            <div
+              class="radioGroup"
+              :class="{ 'radio-error-box': errors.dispositifMedical }"
+            >
+              <label class="radioItemVertical">
+                <input
+                  type="radio"
+                  value="oui"
+                  v-model="formStore.dispositifMedical"
+                />
+                <span>oui</span>
+              </label>
+
+              <label class="radioItemVertical">
+                <input
+                  type="radio"
+                  value="non"
+                  v-model="formStore.dispositifMedical"
+                />
+                <span>non</span>
+              </label>
+            </div>
+            <p v-if="errors.dispositifMedical" class="error">
+              {{ errors.dispositifMedical }}
+            </p>
+          </div>
+
+          <div class="field">
+            <label class="label">Justifier la réponse</label>
+            <input
+              class="input"
+              :class="{ 'input-error': errors.justificationDispositif }"
+              v-model.trim="formStore.justificationDispositif"
+              type="text"
+            />
+            <p v-if="errors.justificationDispositif" class="error">
+              {{ errors.justificationDispositif }}
+            </p>
+          </div>
+
+          <div class="field">
+            <label class="label">
+              Si oui, de quelle classe?<span class="req">*</span>
+            </label>
+            <input
+              class="input"
+              :class="{ 'input-error': errors.classeDispositif }"
+              v-model.trim="formStore.classeDispositif"
+              type="text"
+              :disabled="formStore.dispositifMedical !== 'oui'"
+            />
+            <p v-if="errors.classeDispositif" class="error">
+              {{ errors.classeDispositif }}
+            </p>
           </div>
 
           <div class="bottomRow">
@@ -179,50 +273,283 @@ async function onNext() {
 </template>
 
 <style scoped>
+* {
+  box-sizing: border-box;
+}
+
+.page {
+  min-height: 100vh;
+  background: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 70px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 48px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.logo {
+  height: 42px;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 1150px;
+  background: #f7f7f7;
+  border: 2px solid #5cab53;
+  border-radius: 32px;
+  padding: 40px 44px 30px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.back {
+  background: #eef4ea;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: #6da35e;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.stepInfo {
+  font-size: 24px;
+  color: #2f3b52;
+}
+
+.headCenter {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.headCenter h1 {
+  font-size: 52px;
+  line-height: 1.05;
+  color: #25324b;
+  margin: 0 0 22px;
+  font-weight: 700;
+}
+
+.desc {
+  max-width: 860px;
+  margin: 0 auto;
+  color: #3f4b5f;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.sectionTitle {
+  margin: 0 0 10px;
+  color: #25324b;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.form {
+  margin-top: 8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.label {
+  font-size: 13px;
+  color: #1c1c1c;
+  margin-bottom: 8px;
+}
+
+.uploadLabel {
+  margin-bottom: 6px;
+}
+
+.req {
+  color: #d62828;
+  margin-left: 2px;
+}
+
+.input {
+  width: 100%;
+  height: 40px;
+  border: 2px solid #9db7bf;
+  border-radius: 20px;
+  padding: 10px 16px;
+  background: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.input:disabled {
+  background: #eeeeee;
+  cursor: not-allowed;
+}
+
+.uploadWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadButton {
+  width: 38px;
+  height: 38px;
+  border: 2px solid #2f2f2f;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 22px;
+  background: white;
+}
+
+.fileName {
+  font-size: 13px;
+  color: #2f3b52;
+  word-break: break-all;
+}
+
+.trlGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 90px);
+  gap: 12px 28px;
+  margin-top: 4px;
+  max-width: 360px;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.radioItem,
+.radioItemVertical {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #2f3b52;
+}
+
+.radio-error-box {
+  padding: 6px;
+  border: 1px solid red;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.bottomRow {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.help {
+  margin: 0;
+  color: #a52020;
+  font-size: 12px;
+}
+
+.help a {
+  color: #a52020;
+  text-decoration: none;
+}
+
+.btn {
+  min-width: 145px;
+  height: 48px;
+  background: #69b34c;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.footer {
+  text-align: center;
+  font-size: 13px;
+  color: #4c5668;
+  padding: 18px 10px 14px;
+}
+
+.footer a {
+  display: block;
+  margin-bottom: 8px;
+  color: #3d63c8;
+  text-decoration: none;
+}
+
 .input-error {
   border-color: red !important;
-  color: red;
 }
+
 .error {
   color: red;
   font-size: 0.85rem;
   margin-top: 4px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 300px;
-  font-family: sans-serif;
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    height: auto;
+    gap: 10px;
+    padding: 18px;
+  }
+
+  .card {
+    padding: 24px 20px;
+  }
+
+  .headCenter h1 {
+    font-size: 34px;
+  }
+
+  .trlGrid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 100%;
+  }
+
+  .bottomRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }
-
-select {
-  padding: 10px 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: white;
-  font-size: 16px;
-  color: #333;
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  appearance: none; 
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 1em;
-  width:200px;
-  margin-bottom:10px;
-}
-
-
-input[type="text"] {
-  padding: 10px 15px;
-  border: 1px solid #4A90E2;
-  border-radius: 8px;
-  font-size: 14px;
-  animation: fadeIn 0.3s ease-in-out;
-  width:200px;
-}
-
 </style>

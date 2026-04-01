@@ -1,33 +1,52 @@
 import { reactive } from 'vue';
 
 export const formStore = reactive({
-  dejaInscrit: false,
-  idUtilisateurGenere: null,
-  experimentationsListe: [],
-
   prenom: '',
   nom: '',
-  naissance: '',
-
+  fonction: '',
   telephone: '',
   email: '',
-  codePostal: '',
-  profilSante: '',
+//page 2
+  entreprise: '',
+  adresse: '',
+  dateCreation: '',
+  siret: '',
+  effectif: '',
+  structureJuridique: '',
+  siteWeb: '',
+  autreLieu: '',
+  
+//page3
+  nomSolution: '',
+description: '',
+problematique: '',
+typeInnovation: '',
+benefices: '',
+caractereInnovant: '',
+coconception: '',
+implication: '',
+comite: '',
 
-  momentContact: [],
-  informationsComplementaires: '',
-  experimentationChoisie: '',
+//paage5
+equipe: '',
+accompagnement: '',
+tiersLieu: '',
+pourquoiRI2S: '',
 
-  role: '',
+schemaTechnique: null,
+trl: '',
+justificationTRL: '',
+dispositifMedical: '',
+justificationDispositif: '',
+classeDispositif: '',
+//page7
+besoinsAccompagnement: [],
+autreBesoin: '',
+descriptionBesoins: '',
+questionProjet: '',
+terrainExperimentation: '',
 
-  prochePrenom: '',
-  procheNom: '',
-  procheNaissance: '',
-
-  procheTelephone: '',
-  procheEmail: '',
-  procheCodePostal: '',
-
-  procheMomentContact: [],
-  procheInfosComplementaires: '',
+conclusion: '',
+documentsConclusion: [],
+idUtilisateurGenere: null,
 });
