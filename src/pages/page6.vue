@@ -27,7 +27,6 @@ function validate() {
   return !errors.prochePrenom && !errors.procheNom && !errors.procheNaissance;
 }
 
-
 async function inscrireUtilisateurAExp(id_utilisateur, idExpe, role) {
   const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${id_utilisateur}/inscriptions?idExpe=${idExpe}&role=${role}`;
   try {
@@ -48,6 +47,11 @@ async function inscrireUtilisateurAExp(id_utilisateur, idExpe, role) {
   }
 }
 
+function onSkip() {
+  formStore.idProcheGenere = null; 
+  router.push('/page9'); 
+}
+
 async function onNext() {
   if (!validate()) return;
 
@@ -56,20 +60,20 @@ async function onNext() {
   const dateClean = encodeURIComponent(formStore.procheNaissance);
 
   try {
-  
     const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/verification?nom=${nomClean}&prenom=${prenomClean}&typeutilisateur=profilnonpro&dateNaissance=${dateClean}`;
-    
+
     const response = await fetch(url);
-    if (!response.ok) throw new Error("Erreur serveur lors de la vérification du proche");
+    if (!response.ok)
+      throw new Error('Erreur serveur lors de la vérification du proche');
 
     const data = await response.json();
-    
-    const aLeProfilNonPro = data.existe; 
+
+    const aLeProfilNonPro = data.existe;
     const idTrouve = data.id;
 
     if (idTrouve !== null) {
       console.log('Utilisateur existant trouvé, ID :', idTrouve);
-      
+
       formStore.idProcheGenere = idTrouve;
 
       if (aLeProfilNonPro === true) {
@@ -77,7 +81,11 @@ async function onNext() {
         const rolePrincipal = formStore.role.toUpperCase();
         const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
 
-        const inscriptionOk = await inscrireUtilisateurAExp(idTrouve, idExpe, roleProche);
+        const inscriptionOk = await inscrireUtilisateurAExp(
+          idTrouve,
+          idExpe,
+          roleProche
+        );
 
         if (inscriptionOk) {
           router.push('/page9');
@@ -87,10 +95,9 @@ async function onNext() {
       } else {
         router.push('/page7');
       }
-
     } else {
       console.log('Proche inconnu en base, création complète requise.');
-      formStore.idProcheGenere = null; 
+      formStore.idProcheGenere = null;
       router.push('/page7');
     }
   } catch (error) {
@@ -179,12 +186,24 @@ async function onNext() {
           </div>
 
           <div class="bottomRow">
-            <p class="help">
-              En cas de difficulté merci de nous contacter à cette adresse :
-              <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
-            </p>
+          <p class="help">
+            En cas de difficulté merci de nous contacter à cette adresse :
+            <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
+          </p>
+          
+          <div style="display: flex; gap: 15px; align-items: center;">
+            
+            <button 
+              v-if="!formStore.necessiteAidant" 
+              class="btn-skip" 
+              type="button" 
+              @click="onSkip">
+              Passer cette étape
+            </button>
+        
             <button class="btn" type="submit">Continuer</button>
           </div>
+        </div>
         </form>
       </section>
     </main>
@@ -241,4 +260,24 @@ input[type='text'] {
   animation: fadeIn 0.3s ease-in-out;
   width: 200px;
 }
+
+
+.btn-skip {
+  background: var(--white);
+  border: 1px solid #ccc;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+  padding: 10px 28px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.btn-skip:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
 </style>

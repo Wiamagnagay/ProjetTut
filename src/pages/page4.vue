@@ -25,8 +25,20 @@ function onNext() {
   if (!formStore.experimentationChoisie) {
     router.push('/page5');
   } else if (formStore.experimentationChoisie === 'attente_contact') {
+    formStore.necessiteAidant = false;
+    formStore.necessitePro = false;
     router.push('/page6fin');
   } else {
+    const expeSelectionnee = experimentations.value.find(
+      (e) => String(e.idExperimentation) === formStore.experimentationChoisie
+    );
+
+    if (expeSelectionnee) {
+      formStore.necessiteAidant = expeSelectionnee.necessiteAidant;
+      formStore.necessitePro = expeSelectionnee.necessitePro;
+      formStore.nomExperimentation = expeSelectionnee.nomExperimentation;
+    }
+
     router.push('/page5');
   }
 }
@@ -44,14 +56,13 @@ function onNext() {
           <div class="stepInfo">étape 4/9</div>
         </div>
         <div v-if="formStore.dejaInscrit" class="welcome-back">
-        Ravi de vous revoir, {{ formStore.prenom }} !
-        <p>
-          Votre profil a été reconnu. Vous pouvez directement choisir votre
-          expérimentation ci-dessous.
-        </p>
-      </div>
+          Ravi de vous revoir, {{ formStore.prenom }} !
+          <p>
+            Votre profil a été reconnu. Vous pouvez directement choisir votre
+            expérimentation ci-dessous.
+          </p>
+        </div>
         <h1>Choix d'une expérimentation</h1>
-        
 
         <div v-if="loading" class="loading">
           Chargement des expérimentations...
@@ -185,6 +196,5 @@ h1 {
 .welcome-back p {
   margin: 5px 0 0 0;
   font-size: 0.85rem;
-  
 }
 </style>

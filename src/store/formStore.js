@@ -30,4 +30,7 @@ export const formStore = reactive({
 
   procheMomentContact: [],
   procheInfosComplementaires: '',
+
+  necessiteAidant: false,
+  necessitePro: false,
 });

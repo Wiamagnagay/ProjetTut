@@ -1,18 +1,15 @@
 <script setup>
-import { reactive, computed } from 'vue';
+import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { formStore } from '../store/formStore';
 
 const router = useRouter();
 const errors = reactive({ role: '' });
 
-const titreExperimentation = computed(() => {
-  if (formStore.experimentationChoisie === 'telegrafik')
-    return 'Expérimentation Telegrafik';
-  if (formStore.experimentationChoisie === 'presage')
-    return 'Expérimentation Présage';
-  return 'Expérimentation';
-});
+// ✅ On utilise directement le nom stocké depuis la Page 4
+const titreExperimentation = formStore.nomExperimentation 
+  ? `Expérimentation ${formStore.nomExperimentation}`
+  : 'Expérimentation';
 
 function validate() {
   errors.role = '';
@@ -36,16 +33,14 @@ async function inscrireUtilisateur(id_utilisateur, idExpe, role) {
       }
     });
 
-    if (!reponse.ok) {
-      throw new Error(`Erreur lors de la requête : ${reponse.status}`);
-    }
+    if (!reponse.ok) throw new Error(`Erreur lors de la requête : ${reponse.status}`);
 
     const data = await reponse.json();
     console.log("Inscription réussie", data);
     return data;
 
   } catch (erreur) {
-    console.error("l'inscription a échoué :", erreur);
+    console.error("L'inscription a échoué :", erreur);
     return false; 
   }
 }
@@ -55,7 +50,6 @@ async function onNext() {
 
   const id_utilisateur = formStore.idUtilisateurGenere; 
   const role = formStore.role.toUpperCase(); 
-
   const idExpe = Number(formStore.experimentationChoisie);
 
   if (!id_utilisateur || !idExpe) {
@@ -71,7 +65,6 @@ async function onNext() {
     errors.role = "Erreur lors de l'enregistrement. Vérifie la console.";
   }
 }
-
 </script>
 
 <template>
