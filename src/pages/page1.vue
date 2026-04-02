@@ -41,33 +41,28 @@ function validate() {
 async function onNext() {
   if (!validate()) return;
 
-  const nomClean = formStore.nom.trim().toUpperCase(); 
-  const prenomClean = formStore.prenom.trim().toLowerCase(); 
-  const dateClean = formStore.naissance; 
-  const profilChoisi = formStore.profilSante; 
+  const nomClean = encodeURIComponent(formStore.nom.trim()); 
+  const prenomClean = encodeURIComponent(formStore.prenom.trim()); 
+  const dateClean = encodeURIComponent(formStore.naissance); 
+  
+  const profilChoisi = formStore.profilSante;
+  const typeParam = profilChoisi === 'pro' ? 'profilpro' : 'profilnonpro';
 
   try {
-    const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs');
-    const tousLesUtilisateurs = await response.json(); 
+    const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/verification?nom=${nomClean}&prenom=${prenomClean}&typeutilisateur=${typeParam}&dateNaissance=${dateClean}`;
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Erreur lors de la vérification côté serveur");
 
-    const utilisateurTrouve = tousLesUtilisateurs.find(user => 
-      user.nom.toUpperCase() === nomClean && 
-      user.prenom.toLowerCase() === prenomClean &&
-      user.dateNaissance.startsWith(dateClean) 
-    );
+    const data = await response.json(); 
+    
+    const aLeBonProfil = data.existe; 
+    const idTrouve = data.id;         
 
-    if (utilisateurTrouve) {
-      formStore.idUtilisateurGenere = utilisateurTrouve.idUtilisateur;
+    if (idTrouve !== null) {
+      formStore.idUtilisateurGenere = idTrouve;
 
-      let profilDejaExistant = false;
-
-      if (profilChoisi === 'pro' && utilisateurTrouve.profilPro !== null) {
-        profilDejaExistant = true;
-      } else if (profilChoisi === 'non_pro' && utilisateurTrouve.profilNonPro !== null) {
-        profilDejaExistant = true;
-      }
-
-      if (profilDejaExistant) {
+      if (aLeBonProfil === true) {
         formStore.dejaInscrit = true;
         formStore.typeAction = 'connexion'; 
         router.push('/page4'); 
@@ -85,7 +80,7 @@ async function onNext() {
     }
 
   } catch (error) {
-    console.error("Erreur lors du contournement Front-end :", error);
+    console.error("Erreur API de vérification :", error);
     formStore.dejaInscrit = false;
     formStore.typeAction = 'creation_complete';
     router.push('/page2');

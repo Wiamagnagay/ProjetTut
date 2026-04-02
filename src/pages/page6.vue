@@ -51,32 +51,33 @@ async function inscrireUtilisateurAExp(id_utilisateur, idExpe, role) {
 async function onNext() {
   if (!validate()) return;
 
-  const nomClean = formStore.procheNom.trim().toUpperCase();
-  const prenomClean = formStore.prochePrenom.trim().toLowerCase();
-  const dateClean = formStore.procheNaissance;
+  const nomClean = encodeURIComponent(formStore.procheNom.trim());
+  const prenomClean = encodeURIComponent(formStore.prochePrenom.trim());
+  const dateClean = encodeURIComponent(formStore.procheNaissance);
 
   try {
-    const response = await fetch('https://formulaire-ri2s-1.onrender.com/api/utilisateurs');
-    const tousLesUtilisateurs = await response.json();
+  
+    const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/verification?nom=${nomClean}&prenom=${prenomClean}&typeutilisateur=profilnonpro&dateNaissance=${dateClean}`;
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Erreur serveur lors de la vérification du proche");
 
-    const procheTrouve = tousLesUtilisateurs.find(
-      (user) =>
-        user.nom.toUpperCase() === nomClean &&
-        user.prenom.toLowerCase() === prenomClean &&
-        user.dateNaissance.startsWith(dateClean)
-    );
+    const data = await response.json();
+    
+    const aLeProfilNonPro = data.existe; 
+    const idTrouve = data.id;
 
-    if (procheTrouve) {
-      console.log('Utilisateur existant trouvé ! ID :', procheTrouve.idUtilisateur);
+    if (idTrouve !== null) {
+      console.log('Utilisateur existant trouvé, ID :', idTrouve);
       
-      formStore.idProcheGenere = procheTrouve.idUtilisateur;
+      formStore.idProcheGenere = idTrouve;
 
-      if (procheTrouve.profilNonPro !== null) {
+      if (aLeProfilNonPro === true) {
         const idExpe = Number(formStore.experimentationChoisie);
         const rolePrincipal = formStore.role.toUpperCase();
         const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
 
-        const inscriptionOk = await inscrireUtilisateurAExp(procheTrouve.idUtilisateur, idExpe, roleProche);
+        const inscriptionOk = await inscrireUtilisateurAExp(idTrouve, idExpe, roleProche);
 
         if (inscriptionOk) {
           router.push('/page9');
@@ -88,11 +89,13 @@ async function onNext() {
       }
 
     } else {
+      console.log('Proche inconnu en base, création complète requise.');
       formStore.idProcheGenere = null; 
       router.push('/page7');
     }
   } catch (error) {
     console.error('Erreur lors de la vérification du proche :', error);
+    formStore.idProcheGenere = null;
     router.push('/page7');
   }
 }
