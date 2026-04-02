@@ -13,7 +13,7 @@ const errors = reactive({
   nom: '',
   codePostal: '',
   telephone: '',
-  email: ''
+  email: '',
 });
 
 const nameRegex = /^[a-zA-ZÀ-ÿ\s\-']+$/;
@@ -78,8 +78,39 @@ function onBack() {
   router.push('/');
 }
 
-function onNext() {
+async function onNext() {
   if (!validate()) return;
+  const params = new URLSearchParams({
+    nom: formStore.nom.trim(),
+    prenom: formStore.prenom.trim(),
+    typeutilisateur: 'profilpersonnecontact',
+    dateNaissance: formStore.naissance,
+  });
+  try {
+    const response = await fetch(
+      `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/verification?${params.toString()}`,
+      {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      }
+    );
+
+    if (!response.ok) throw new Error('Erreur de vérification');
+
+    const result = await response.json();
+    console.log(result);
+    if (result.id) {
+      formStore.idutilisateur = result.id;
+      console.log('ID récupéré :', formStore.idutilisateur);
+    }
+
+    formStore.dejaInscrit = result.existe;
+
+    router.push('/page2');
+  } catch (error) {
+    console.error('Erreur technique lors de la vérification :', error);
+    formStore.dejaInscrit = false;
+  }
   router.push('/page2');
 }
 </script>
@@ -120,7 +151,9 @@ function onNext() {
             </div>
 
             <div class="field">
-              <label class="label">N° de Téléphone<span class="req">*</span></label>
+              <label class="label"
+                >N° de Téléphone<span class="req">*</span></label
+              >
               <input
                 class="input"
                 :class="{ 'input-error': errors.telephone }"
@@ -130,7 +163,9 @@ function onNext() {
                 placeholder="ex: 06xxxxxxxx ou 05xxxxxxxx"
               />
               <div class="hint">Ne doit pas comporter d'espaces</div>
-              <p v-if="errors.telephone" class="error">{{ errors.telephone }}</p>
+              <p v-if="errors.telephone" class="error">
+                {{ errors.telephone }}
+              </p>
             </div>
 
             <div class="field">
@@ -145,7 +180,9 @@ function onNext() {
             </div>
 
             <div class="field">
-              <label class="label">Adresse électronique<span class="req">*</span></label>
+              <label class="label"
+                >Adresse électronique<span class="req">*</span></label
+              >
               <input
                 class="input"
                 :class="{ 'input-error': errors.email }"
@@ -155,8 +192,21 @@ function onNext() {
               />
               <p v-if="errors.email" class="error">{{ errors.email }}</p>
             </div>
-
-            <div class="field full-width">
+            <div class="field">
+              <label class="label"
+                >Date de naissance<span class="req">*</span></label
+              >
+              <input
+                class="input date"
+                type="date"
+                v-model="formStore.naissance"
+              />
+              <div class="hint">Obligatoire</div>
+              <p v-if="errors.naissance" class="error">
+                {{ errors.naissance }}
+              </p>
+            </div>
+            <div class="field">
               <label class="label">Code postal<span class="req">*</span></label>
               <input
                 class="input"
@@ -167,7 +217,9 @@ function onNext() {
                 maxlength="5"
                 placeholder="ex. 81100"
               />
-              <p v-if="errors.codePostal" class="error">{{ errors.codePostal }}</p>
+              <p v-if="errors.codePostal" class="error">
+                {{ errors.codePostal }}
+              </p>
             </div>
           </div>
 
