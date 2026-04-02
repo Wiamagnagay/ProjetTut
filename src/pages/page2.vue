@@ -30,8 +30,12 @@ function validate() {
   else if (!emailRegex.test(formStore.email.trim()))
     errors.email = 'Format invalide';
 
+  const codePostalRegex=/^[0-9]{5}$/;
   if (!formStore.codePostal?.trim())
     errors.codePostal = 'Code postal obligatoire';
+  else if (!codePostalRegex.test(formStore.codePostal.trim()))
+    errors.codePostal = 'Format invalide';
+
   if (!formStore.profilSante) errors.profilSante = 'Choix obligatoire';
 
   return (
