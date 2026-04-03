@@ -8,6 +8,8 @@ export const formStore = reactive({
   fonction: '',
   telephone: '',
   email: '',
+  codePostal: '',
+  dejaInscrit: false,
   //page 2
   entreprise: '',
   adresse: '',

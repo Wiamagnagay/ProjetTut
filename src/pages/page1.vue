@@ -27,6 +27,8 @@ function clearErrors() {
   errors.codePostal = '';
   errors.telephone = '';
   errors.email = '';
+  errors.naissance = '';
+  errors.fonction = '';
 }
 
 function validate() {
@@ -36,6 +38,11 @@ function validate() {
     errors.prenom = 'Le prénom est obligatoire.';
   } else if (!nameRegex.test(formStore.prenom.trim())) {
     errors.prenom = 'Le prénom ne doit contenir que des lettres.';
+  }
+  if (!formStore.fonction?.trim()) {
+    errors.fonction = 'La fonction est obligatoire.';
+  } else if (!nameRegex.test(formStore.prenom.trim())) {
+    errors.fonction = 'La fonction ne doit contenir que des lettres.';
   }
 
   if (!formStore.nom?.trim()) {
@@ -58,7 +65,8 @@ function validate() {
       errors.telephone = 'Veuillez entrer un numéro valide.';
     }
   }
-
+  if (!formStore.naissance)
+    errors.naissance = 'La date de naissance est obligatoire.';
   if (!formStore.email?.trim()) {
     errors.email = "L'adresse électronique est obligatoire.";
   } else if (!emailRegex.test(formStore.email.trim())) {
@@ -70,7 +78,9 @@ function validate() {
     !errors.nom &&
     !errors.codePostal &&
     !errors.telephone &&
-    !errors.email
+    !errors.email &&
+    !errors.fonction &&
+    !errors.naissance
   );
 }
 
@@ -106,7 +116,72 @@ async function onNext() {
 
     formStore.dejaInscrit = result.existe;
 
-    router.push('/page2');
+    try {
+      if (formStore.idutilisateur === null) {
+        const payload = {
+          utilisateur: {
+            nom: formStore.nom.trim().toUpperCase(),
+            prenom: formStore.prenom.trim(),
+            codePostal: Number(formStore.codePostal),
+            dateNaissance: formStore.naissance + 'T00:00:00.000Z',
+            email: formStore.email,
+            telephone: formStore.telephone,
+            consentement: true,
+          },
+          personneContactIndustriel: {
+            fonction: formStore.fonction,
+            emailPersContact: formStore.email.trim(),
+            telephonePersContact: formStore.telephone.replace(/\s/g, '').trim(),
+          },
+        };
+
+        const response = await fetch(
+          'https://formulaire-ri2s-1.onrender.com/api/utilisateurs/inscription',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        if (!response.ok) throw new Error(await response.text());
+
+        const result = await response.json();
+        formStore.idutilisateur = result.idUtilisateur || result.id;
+      } else {
+        if (!formStore.dejaInscrit) {
+          if (!formStore.idutilisateur)
+            throw new Error('ID Utilisateur manquant');
+
+          const payloadPersContact = {
+            fonction: formStore.fonction,
+            emailPersContact: formStore.email.trim(),
+            telephonePersContact: formStore.telephone.replace(/\s/g, '').trim(),
+          };
+
+          const response = await fetch(
+            `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${formStore.idutilisateur}/profil-industriel`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payloadPersContact),
+            }
+          );
+
+          if (!response.ok) throw new Error("Erreur lors de l'ajout du profil");
+        }
+      }
+
+      console.log(
+        'Profil Personne contact industriel enregistré avec succès !'
+      );
+      router.push('/page2');
+    } catch (error) {
+      console.error('Erreur réseau ou serveur :', error);
+      alert(
+        'Une erreur est survenue. Vérifiez que les champs correspondent au format attendu.'
+      );
+    }
   } catch (error) {
     console.error('Erreur technique lors de la vérification :', error);
     formStore.dejaInscrit = false;
@@ -192,6 +267,22 @@ async function onNext() {
               />
               <p v-if="errors.email" class="error">{{ errors.email }}</p>
             </div>
+
+            <div class="field">
+              <label class="label">Code postal<span class="req">*</span></label>
+              <input
+                class="input"
+                :class="{ 'input-error': errors.codePostal }"
+                v-model.trim="formStore.codePostal"
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="ex. 81100"
+              />
+              <p v-if="errors.codePostal" class="error">
+                {{ errors.codePostal }}
+              </p>
+            </div>
             <div class="field">
               <label class="label"
                 >Date de naissance<span class="req">*</span></label
@@ -207,18 +298,16 @@ async function onNext() {
               </p>
             </div>
             <div class="field">
-              <label class="label">Code postal<span class="req">*</span></label>
+              <label class="label">Fonction<span class="req">*</span></label>
               <input
                 class="input"
-                :class="{ 'input-error': errors.codePostal }"
-                v-model.trim="formStore.codePostal"
+                :class="{ 'input-error': errors.fonction }"
+                v-model.trim="formStore.fonction"
                 type="text"
-                inputmode="numeric"
-                maxlength="5"
-                placeholder="ex. 81100"
+                inputmode="text"
               />
-              <p v-if="errors.codePostal" class="error">
-                {{ errors.codePostal }}
+              <p v-if="errors.fonction" class="error">
+                {{ errors.fonction }}
               </p>
             </div>
           </div>
