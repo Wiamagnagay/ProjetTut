@@ -52,122 +52,99 @@ async function onSubmit() {
   submitMessage.value = '';
 
   try {
-    const payload = {
-      utilisateur: {
-        nom:          (formStore.nom || '').trim().toUpperCase(),
-        prenom:       (formStore.prenom || '').trim(),
-        email:        (formStore.email || '').trim(),
-        telephone:    (formStore.telephone || '').replace(/\s/g, '').trim(),
-        codePostal:   formStore.codePostal ? Number(formStore.codePostal) : null,
-        consentement: true,
-      },
+    const idUser = formStore.idutilisateur; // L'ID récupéré en Page 1
+    if (!idUser) throw new Error("ID Utilisateur manquant. Veuillez recommencer l'étape 1.");
 
-      profilIndustriel: {
-        // Page 1 — contact
-        fonction: formStore.fonction || '',
-
-        // Page 2 — infos entreprise
-        entreprise:         formStore.entreprise         || '',
-        adresse:            formStore.adresse            || '',
-        dateCreation:       formStore.dateCreation
-                              ? formStore.dateCreation + 'T00:00:00.000Z'
-                              : null,
-        siret:              formStore.siret              || '',
-        effectif:           formStore.effectif ? Number(formStore.effectif) : null,
-        structureJuridique: formStore.structureJuridique || '',
-        siteWeb:            formStore.siteWeb            || '',
-        autreLieu:          formStore.autreLieu          || '',
-
-        // Page 3 — description solution
-        nomSolution:       formStore.nomSolution       || '',
-        description:       formStore.description       || '',
-        problematique:     formStore.problematique     || '',
-        typeInnovation:    formStore.typeInnovation    || '',
-        benefices:         formStore.benefices         || '',
-        caractereInnovant: formStore.caractereInnovant || '',
-        coconception:      formStore.coconception      || '',
-        implication:       formStore.implication       || '',
-        comite:            formStore.comite            || '',
-
-        // Page 4 — intégration marché
-        marche:            formStore.marche            || '',
-        modeleEconomique:  formStore.modeleEconomique  || '',
-        commercialisation: formStore.commercialisation || '',
-        financement:       formStore.financement       || '',
-        concurrents:       formStore.concurrents       || '',
-
-        // Page 5 — équipe & écosystème
-        equipe:         formStore.equipe         || '',
-        accompagnement: formStore.accompagnement || '',
-        tiersLieu:      formStore.tiersLieu      || '',
-        pourquoiRI2S:   formStore.pourquoiRI2S   || '',
-
-        // Page 6 — technologie / TRL
-        trl:                     formStore.trl                     || '',
-        justificationTRL:        formStore.justificationTRL        || '',
-        dispositifMedical:       formStore.dispositifMedical       || '',
-        justificationDispositif: formStore.justificationDispositif || '',
-        classeDispositif:        formStore.classeDispositif        || '',
-
-        // Page 7 — besoins d'accompagnement
-        besoinsAccompagnement: Array.isArray(formStore.besoinsAccompagnement)
-          ? formStore.besoinsAccompagnement
-          : [],
-        autreBesoin:            formStore.autreBesoin            || '',
-        descriptionBesoins:     formStore.descriptionBesoins     || '',
-        questionProjet:         formStore.questionProjet         || '',
-        terrainExperimentation: formStore.terrainExperimentation || '',
-
-        // Page 8 — conclusion
-        conclusion: formStore.conclusion || '',
-      },
-
-      profilNonPro: null,
-      profilPro:    null,
-      demandeExpe:  null,
+    // 1. Objet INDUSTRIEL (Page 2)
+    const industrielData = {
+      entreprise:         formStore.entreprise || '',
+      adresse:            formStore.adresse || '',
+      dateCreation:       formStore.dateCreation ? formStore.dateCreation + 'T00:00:00.000Z' : null,
+      siret:              formStore.siret || '',
+      effectif:           formStore.effectif ? Number(formStore.effectif) : null,
+      structureJuridique: formStore.structureJuridique || '',
+      siteWeb:            formStore.siteWeb || '',
+      autreLieu:          formStore.autreLieu || '',
     };
 
-    // Construction du FormData (JSON + fichiers)
-    const formData = new FormData();
-    formData.append('data', JSON.stringify(payload));
+    // 2. Objet DOSSIER (Pages 3 à 8)
+    const dossierData = {
+      nomSolution:        formStore.nomSolution || '',
+      description:        formStore.description || '',
+      problematique:      formStore.problematique || '',
+      typeInnovation:     formStore.typeInnovation || '',
+      benefices:          formStore.benefices || '',
+      caractereInnovant:  formStore.caractereInnovant || '',
+      coconception:       formStore.coconception || '',
+      implication:        formStore.implication || '',
+      comite:             formStore.comite || '',
+      marche:             formStore.marche || '',
+      modeleEconomique:   formStore.modeleEconomique || '',
+      commercialisation:  formStore.commercialisation || '',
+      financement:        formStore.financement || '',
+      concurrents:        formStore.concurrents || '',
+      equipe:             formStore.equipe || '',
+      accompagnement:     formStore.accompagnement || '',
+      tiersLieu:          formStore.tiersLieu || '',
+      pourquoiRI2S:       formStore.pourquoiRI2S || '',
+      trl:                formStore.trl || '',
+      justificationTRL:   formStore.justificationTRL || '',
+      dispositifMedical:  formStore.dispositifMedical || '',
+      justificationDispositif: formStore.justificationDispositif || '',
+      classeDispositif:   formStore.classeDispositif || '',
+      besoinsAccompagnement: Array.isArray(formStore.besoinsAccompagnement) ? formStore.besoinsAccompagnement : [],
+      autreBesoin:        formStore.autreBesoin || '',
+      descriptionBesoins: formStore.descriptionBesoins || '',
+      questionProjet:     formStore.questionProjet || '',
+      terrainExperimentation: formStore.terrainExperimentation || '',
+      conclusion:         formStore.conclusion || '',
+      fichiers:           [] // Liste vide pour initialiser l'objet côté Java
+    };
 
-    // Fichier schéma technique (page 6)
+    // 3. Construction du FormData
+    const formData = new FormData();
+    
+    // On envoie les deux objets JSON sous forme de String (RequestPart)
+    formData.append('industriel', JSON.stringify(industrielData));
+    formData.append('dossierCandidature', JSON.stringify(dossierData));
+
+    // 4. Ajout des fichiers (clé unique "fichiers" pour le tableau MultipartFile[])
+    // Ajout du schéma technique s'il existe
     if (formStore.schemaTechnique instanceof File) {
-      formData.append('schemaTechnique', formStore.schemaTechnique);
+      formData.append('fichiers', formStore.schemaTechnique);
     }
 
-    // Documents de conclusion — plusieurs fichiers
-    if (Array.isArray(formStore.documentsConclusion)) {
-      formStore.documentsConclusion.forEach((file) => {
+    // Ajout des documents de conclusion
+    if (Array.isArray(selectedFiles.value)) {
+      selectedFiles.value.forEach((file) => {
         if (file instanceof File) {
-          formData.append('documentsConclusion', file);
+          formData.append('fichiers', file);
         }
       });
     }
 
+    // 5. Envoi au Backend
     const response = await fetch(
-      'https://formulaire-ri2s-1.onrender.com/api/utilisateurs/inscription',
+      `https://formulaire-ri2s-1.onrender.com/api/industriels/inscription/${idUser}`,
       {
         method: 'POST',
-        // Pas de Content-Type manuel : le navigateur gère le boundary multipart
+        // Note: Pas de 'Content-Type' manuel, le navigateur gère le multipart
         body: formData,
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Erreur serveur :', errorText);
-      throw new Error(`Erreur ${response.status} : ${errorText}`);
+      throw new Error(`Erreur serveur (${response.status}) : ${errorText}`);
     }
 
     const result = await response.json();
-    console.log('Candidature soumise, ID :', result.idUtilisateur || result.id);
-    formStore.idUtilisateurGenere = result.idUtilisateur || result.id || null;
-
+    console.log('Succès ! Industriel enregistré avec ID :', result.id);
+    
     router.push('/confirmation');
 
   } catch (error) {
-    console.error('Erreur soumission candidature :', error);
+    console.error('Erreur soumission :', error);
     submitMessage.value = error.message || "Une erreur est survenue lors de l'envoi.";
   } finally {
     isSubmitting.value = false;
