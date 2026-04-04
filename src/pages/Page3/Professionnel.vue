@@ -46,6 +46,7 @@ function onBack() {
 
 async function onNext() {
   if (!validate()) return;
+  console.log("🛠️ TEST STORE - ID:", formStore.idUtilisateurGenere, "| Action:", formStore.typeAction);
 
   const typeAction = formStore.typeAction;
   const idUtilisateur = formStore.idUtilisateurGenere;
@@ -125,7 +126,7 @@ async function onNext() {
     }
 
     console.log('Profil PRO enregistré avec succès !');
-    router.push('/page4');
+    router.push('/page4pro');
   } catch (error) {
     console.error("Erreur d'inscription PRO :", error);
     alert("Une erreur est survenue lors de l'enregistrement.");

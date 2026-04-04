@@ -40,6 +40,8 @@ function validate() {
 
 async function onNext() {
   if (!validate()) return;
+  console.log("id page1",formStore.idUtilisateurGenere)
+
 
   const nomClean = encodeURIComponent(formStore.nom.trim()); 
   const prenomClean = encodeURIComponent(formStore.prenom.trim()); 
@@ -59,7 +61,7 @@ async function onNext() {
     const aLeBonProfil = data.existe; 
     const idTrouve = data.id;         
 
-    if (idTrouve !== null) {
+    if (idTrouve !== null && idTrouve !== undefined) {
       formStore.idUtilisateurGenere = idTrouve;
 
       if (aLeBonProfil === true) {
@@ -85,6 +87,7 @@ async function onNext() {
     formStore.typeAction = 'creation_complete';
     router.push('/page2');
   }
+  
 }
 
 
@@ -134,7 +137,7 @@ async function onNext() {
             <p v-if="errors.naissance" class="error">{{ errors.naissance }}</p>
           </div>
           <div class="field">
-          <label class="label">Je suis<span class="req">*</span></label>
+          <label class="label">Profil<span class="req">*</span></label>
           <label
             ><input
               type="radio"

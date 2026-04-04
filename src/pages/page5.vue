@@ -6,8 +6,7 @@ import { formStore } from '../store/formStore';
 const router = useRouter();
 const errors = reactive({ role: '' });
 
-// ✅ On utilise directement le nom stocké depuis la Page 4
-const titreExperimentation = formStore.nomExperimentation 
+const titreExperimentation = formStore.nomExperimentation
   ? `Expérimentation ${formStore.nomExperimentation}`
   : 'Expérimentation';
 
@@ -28,32 +27,32 @@ async function inscrireUtilisateur(id_utilisateur, idExpe, role) {
     const reponse = await fetch(url, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     });
 
-    if (!reponse.ok) throw new Error(`Erreur lors de la requête : ${reponse.status}`);
+    if (!reponse.ok)
+      throw new Error(`Erreur lors de la requête : ${reponse.status}`);
 
     const data = await reponse.json();
-    console.log("Inscription réussie", data);
+    console.log('Inscription réussie', data);
     return data;
-
   } catch (erreur) {
     console.error("L'inscription a échoué :", erreur);
-    return false; 
+    return false;
   }
 }
 
 async function onNext() {
   if (!validate()) return;
 
-  const id_utilisateur = formStore.idUtilisateurGenere; 
-  const role = formStore.role.toUpperCase(); 
+  const id_utilisateur = formStore.idUtilisateurGenere;
+  const role = formStore.role.toUpperCase();
   const idExpe = Number(formStore.experimentationChoisie);
 
   if (!id_utilisateur || !idExpe) {
-    errors.role = "Erreur : Données manquantes (Utilisateur ou Expérience).";
+    errors.role = 'Erreur : Données manquantes (Utilisateur ou Expérience).';
     return;
   }
 
@@ -69,9 +68,9 @@ async function onNext() {
 
 <template>
   <div class="page">
-  <header class="topbar">
-  <img src="@/assets/logoRI2S.png" alt="RI2S" style="height:40px" />
-</header>
+    <header class="topbar">
+      <img src="@/assets/logoRI2S.png" alt="RI2S" style="height: 40px" />
+    </header>
 
     <main class="main">
       <section class="card">
@@ -90,7 +89,7 @@ async function onNext() {
         <form class="form" @submit.prevent="onNext">
           <div class="field">
             <label
-              >Dans cette expérimentation j'aurai le rôle de :
+              >Dans cette expérimentation {{ formStore.prenom }} aura le rôle de :
               <span class="req">*</span></label
             >
             <label
