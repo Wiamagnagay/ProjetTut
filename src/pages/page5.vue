@@ -58,10 +58,18 @@ async function onNext() {
 
   const inscriptionOk = await inscrireUtilisateur(id_utilisateur, idExpe, role);
 
-  if (inscriptionOk !== false) {
+  if (inscriptionOk) {
+    if (formStore.idProLie) {
+      console.log(
+        "Un professionnel accompagne l'inscription, on le relie à l'expérience !"
+      );
+
+      await inscrireUtilisateur(formStore.idProLie, idExpe, 'PRO');
+    }
+
     router.push('/page6');
   } else {
-    errors.role = "Erreur lors de l'enregistrement. Vérifie la console.";
+    errors.role = "Erreur lors de l'enregistrement";
   }
 }
 </script>
@@ -89,8 +97,8 @@ async function onNext() {
         <form class="form" @submit.prevent="onNext">
           <div class="field">
             <label
-              >Dans cette expérimentation {{ formStore.prenom }} aura le rôle de :
-              <span class="req">*</span></label
+              >Dans cette expérimentation {{ formStore.prenom }} aura le rôle de
+              : <span class="req">*</span></label
             >
             <label
               ><input type="radio" value="senior" v-model="formStore.role" />

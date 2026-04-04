@@ -23,22 +23,32 @@ function selectCard(idExperimentation) {
 
 function onNext() {
   if (!formStore.experimentationChoisie) {
-    router.push('/page5');
-  } else if (formStore.experimentationChoisie === 'attente_contact') {
+    erreurSelection.value = "Veuillez sélectionner une expérimentation.";
+    return; 
+  } 
+
+  if (formStore.experimentationChoisie === 'attente_contact') {
     formStore.necessiteAidant = false;
     formStore.necessitePro = false;
     router.push('/page6fin');
-  } else {
-    const expeSelectionnee = experimentations.value.find(
-      (e) => String(e.idExperimentation) === formStore.experimentationChoisie
-    );
+    return;
+  } 
 
-    if (expeSelectionnee) {
-      formStore.necessiteAidant = expeSelectionnee.necessiteAidant;
-      formStore.necessitePro = expeSelectionnee.necessitePro;
-      formStore.nomExperimentation = expeSelectionnee.nomExperimentation;
+  const expeSelectionnee = experimentations.value.find(
+    (e) => String(e.idExperimentation) === formStore.experimentationChoisie
+  );
+
+  if (expeSelectionnee) {
+    if (expeSelectionnee.necessitePro === true && !formStore.idProConnecte) {
+      erreurSelection.value = "Cette expérimentation nécessite l'accompagnement d'un professionnel de santé. Veuillez en parler à votre médecin pour qu'il procède à votre inscription.";
+      return; 
     }
 
+    formStore.necessiteAidant = expeSelectionnee.necessiteAidant;
+    formStore.necessitePro = expeSelectionnee.necessitePro;
+    formStore.nomExperimentation = expeSelectionnee.nomExperimentation;
+    
+    erreurSelection.value = '';
     router.push('/page5');
   }
 }
@@ -111,12 +121,13 @@ function onNext() {
           <p v-if="erreurSelection" class="error">{{ erreurSelection }}</p>
 
           <div class="bottomRow">
-            <p class="help">
-              En cas de difficulté merci de nous contacter à cette adresse :
-              <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
-            </p>
-            <button class="btn" type="submit">Continuer</button>
-          </div>
+          
+          <p class="help">
+            En cas de difficulté merci de nous contacter :
+            <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
+          </p>
+          <button class="btn" type="submit" @click.prevent="onNext">Continuer</button>
+        </div>
         </form>
       </section>
     </main>

@@ -52,22 +52,32 @@ async function onNext() {
 
   try {
     const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/verification?nom=${nomClean}&prenom=${prenomClean}&typeutilisateur=${typeParam}&dateNaissance=${dateClean}`;
+    console.log("URL envoyée au backend :", url);
     
     const response = await fetch(url);
-    if (!response.ok) throw new Error("Erreur lors de la vérification côté serveur");
+    if (!response.ok) throw new Error("Erreur serveur");
 
     const data = await response.json(); 
+    console.log("Réponse page 1 :", data);
     
     const aLeBonProfil = data.existe; 
     const idTrouve = data.id;         
 
     if (idTrouve !== null && idTrouve !== undefined) {
+      console.log("ID TROUVÉ :", idTrouve);
       formStore.idUtilisateurGenere = idTrouve;
 
       if (aLeBonProfil === true) {
-        formStore.dejaInscrit = true;
+        if (profilChoisi==='pro'){
+          formStore.dejaInscrit = true;
+          formStore.typeAction = 'connexion'; 
+          router.push('/page4pro'); 
+
+        }
+        else {formStore.dejaInscrit = true;
         formStore.typeAction = 'connexion'; 
         router.push('/page4'); 
+        }
       } else {
         formStore.dejaInscrit = false;
         formStore.typeAction = profilChoisi === 'pro' ? 'ajout_profil_pro' : 'ajout_profil_non_pro';

@@ -9,10 +9,15 @@ function onFinish() {
 }
 
 function onAddPatient() {
+  formStore.idProLie = formStore.idUtilisateurGenere;
   formStore.idUtilisateurGenere = null;
   formStore.nom = '';
   formStore.prenom = '';
-  formStore.email = '';  
+  formStore.email = '';
+  formStore.profilSante = '';
+  formStore.codePostal = '';
+  formStore.naissance = '';
+  formStore.telephone = '';  
   router.push('/page1');
 }
 </script>
@@ -25,13 +30,17 @@ function onAddPatient() {
 
     <main class="main">
       <section class="card">
+        
         <div class="cardTop">
-          <h1>Inscription réussie !</h1>
+          <h1 v-if="formStore.dejaInscrit">Content de vous revoir !</h1>
+          <h1 v-else>Inscription réussie !</h1>
         </div>
         
-        <p class="desc">
-          Votre profil professionnel a été enregistré avec succès. Chaque expérimentation nécessitant un professionnel devra être demandée par vous.
-         Que souhaitez-vous faire maintenant ?
+        <p class="desc" v-if="formStore.dejaInscrit">
+          Votre profil professionnel a bien été identifié. Chaque expérimentation nécessitant un professionnel devra être demandée par vous. Que souhaitez-vous faire maintenant ?
+        </p>
+        <p class="desc" v-else>
+          Votre profil professionnel a été enregistré avec succès. Chaque expérimentation nécessitant un professionnel devra être demandée par vous. Que souhaitez-vous faire maintenant ?
         </p>
 
         <div class="choices">
@@ -42,7 +51,7 @@ function onAddPatient() {
             </div>
           </button>
 
-          <button class="btn-choice outline" @click="onFinish">
+          <button class="btn-choice outline" @click="onFinish" v-if="!formStore.dejaInscrit">
             <div class="text">
               <strong class="titre_choix">Terminer ici</strong>
               <p>Je ne souhaite pas inscrire de patient pour le moment.</p>
@@ -60,8 +69,7 @@ function onAddPatient() {
   flex-direction: column;
   gap: 1.5rem;
   margin-top: 2rem;
-  font-family:'DM Sans', sans-serif,
-
+  font-family: 'DM Sans', sans-serif;
 }
 
 .btn-choice {
@@ -75,10 +83,8 @@ function onAddPatient() {
   cursor: pointer;
   text-align: left;
   transition: transform 0.2s, box-shadow 0.2s;
-  font-family:'DM Sans', sans-serif,
+  font-family: 'DM Sans', sans-serif;
 }
-
-
 
 .btn-choice.outline {
   border-color: #cee;
@@ -98,11 +104,10 @@ function onAddPatient() {
   margin: 0;
   font-size: 0.9rem;
   color: #666;
-  font-family:'DM Sans', sans-serif,
+  font-family: 'DM Sans', sans-serif;
 }
 
-.titre_choix{
-  font-family:'DM Sans', sans-serif,
-
+.titre_choix {
+  font-family: 'DM Sans', sans-serif;
 }
 </style>
