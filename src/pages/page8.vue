@@ -52,69 +52,64 @@ async function onSubmit() {
   submitMessage.value = '';
 
   try {
-    const idUser = formStore.idutilisateur; // L'ID récupéré en Page 1
-    if (!idUser) throw new Error("ID Utilisateur manquant. Veuillez recommencer l'étape 1.");
+    const idUser = formStore.idutilisateur;
+    if (!idUser)
+      throw new Error(
+        "ID Utilisateur manquant. Veuillez recommencer l'étape 1."
+      );
 
-    // 1. Objet INDUSTRIEL (Page 2)
+    // 1. Objet INDUSTRIEL (Page 2) - Noms des clés corrigés
     const industrielData = {
-      entreprise:         formStore.entreprise || '',
-      adresse:            formStore.adresse || '',
-      dateCreation:       formStore.dateCreation ? formStore.dateCreation + 'T00:00:00.000Z' : null,
-      siret:              formStore.siret || '',
-      effectif:           formStore.effectif ? Number(formStore.effectif) : null,
+      nomEntreprise: formStore.entreprise || '', // Backend attend 'nomEntreprise'
+      adresseIndustriel: formStore.adresse || '', // Backend attend 'adresseIndustriel'
+      dateCreation: formStore.dateCreation
+        ? formStore.dateCreation + 'T00:00:00.000Z'
+        : null,
+      siret: formStore.siret || '',
+      effectif: formStore.effectif ? Number(formStore.effectif) : null,
       structureJuridique: formStore.structureJuridique || '',
-      siteWeb:            formStore.siteWeb || '',
-      autreLieu:          formStore.autreLieu || '',
+      siteWeb: formStore.siteWeb || '',
+      autreLien: formStore.autreLieu || '', // Backend attend 'autreLien'
     };
 
-    // 2. Objet DOSSIER (Pages 3 à 8)
+    // 2. Objet DOSSIER (Pages 3 à 8) - Vérifie bien ces noms
     const dossierData = {
-      nomSolution:        formStore.nomSolution || '',
-      description:        formStore.description || '',
-      problematique:      formStore.problematique || '',
-      typeInnovation:     formStore.typeInnovation || '',
-      benefices:          formStore.benefices || '',
-      caractereInnovant:  formStore.caractereInnovant || '',
-      coconception:       formStore.coconception || '',
-      implication:        formStore.implication || '',
-      comite:             formStore.comite || '',
-      marche:             formStore.marche || '',
-      modeleEconomique:   formStore.modeleEconomique || '',
-      commercialisation:  formStore.commercialisation || '',
-      financement:        formStore.financement || '',
-      concurrents:        formStore.concurrents || '',
-      equipe:             formStore.equipe || '',
-      accompagnement:     formStore.accompagnement || '',
-      tiersLieu:          formStore.tiersLieu || '',
-      pourquoiRI2S:       formStore.pourquoiRI2S || '',
-      trl:                formStore.trl || '',
-      justificationTRL:   formStore.justificationTRL || '',
-      dispositifMedical:  formStore.dispositifMedical || '',
-      justificationDispositif: formStore.justificationDispositif || '',
-      classeDispositif:   formStore.classeDispositif || '',
-      besoinsAccompagnement: Array.isArray(formStore.besoinsAccompagnement) ? formStore.besoinsAccompagnement : [],
-      autreBesoin:        formStore.autreBesoin || '',
-      descriptionBesoins: formStore.descriptionBesoins || '',
-      questionProjet:     formStore.questionProjet || '',
-      terrainExperimentation: formStore.terrainExperimentation || '',
-      conclusion:         formStore.conclusion || '',
-      fichiers:           [] // Liste vide pour initialiser l'objet côté Java
+      nomDossier: 'Dossier Candidature ' + (formStore.nomSolution || ''),
+      nomSolution: formStore.nomSolution || '',
+      descriptionSolution: formStore.description || '', // Backend attend souvent 'descriptionSolution'
+      problematique: formStore.problematique || '',
+      typrInnovation: formStore.typeInnovation || '', // Garder la faute 'typr' si présente en Java
+      benefices: formStore.benefices || '',
+      caractereInnovant: formStore.caractereInnovant || '',
+      coconception: formStore.coconception || '',
+      implication: formStore.implication || '',
+      comite: formStore.comite === 'true' || formStore.comite === true,
+      marche: formStore.marche || '',
+      modeleEco: formStore.modeleEconomique || '', // Backend attend souvent 'modeleEco'
+      trl: formStore.trl ? Number(formStore.trl) : 0,
+      dispositifMedical:
+        formStore.dispositifMedical === 'true' ||
+        formStore.dispositifMedical === true,
+      conclusion: formStore.conclusion || '',
+      questiosProjet: formStore.questionProjet || '', // Garder la faute 'questios' si présente en Java
     };
 
     // 3. Construction du FormData
     const formData = new FormData();
-    
-    // On envoie les deux objets JSON sous forme de String (RequestPart)
-    formData.append('industriel', JSON.stringify(industrielData));
-    formData.append('dossierCandidature', JSON.stringify(dossierData));
+    formData.append(
+      'industriel',
+      new Blob([JSON.stringify(industrielData)], { type: 'application/json' })
+    );
+    formData.append(
+      'dossierCandidature',
+      new Blob([JSON.stringify(dossierData)], { type: 'application/json' })
+    );
 
-    // 4. Ajout des fichiers (clé unique "fichiers" pour le tableau MultipartFile[])
-    // Ajout du schéma technique s'il existe
+    // 4. Ajout des fichiers
     if (formStore.schemaTechnique instanceof File) {
       formData.append('fichiers', formStore.schemaTechnique);
     }
 
-    // Ajout des documents de conclusion
     if (Array.isArray(selectedFiles.value)) {
       selectedFiles.value.forEach((file) => {
         if (file instanceof File) {
@@ -123,12 +118,11 @@ async function onSubmit() {
       });
     }
 
-    // 5. Envoi au Backend
+    // --- LA PARTIE MANQUANTE : L'ENVOI ---
     const response = await fetch(
       `https://formulaire-ri2s-1.onrender.com/api/industriels/inscription/${idUser}`,
       {
         method: 'POST',
-        // Note: Pas de 'Content-Type' manuel, le navigateur gère le multipart
         body: formData,
       }
     );
@@ -139,13 +133,15 @@ async function onSubmit() {
     }
 
     const result = await response.json();
-    console.log('Succès ! Industriel enregistré avec ID :', result.id);
-    
-    router.push('/confirmation');
+    submitMessage.value = 'Votre candidature a été envoyée avec succès !';
 
+    // Redirection après un court délai
+    setTimeout(() => {
+      router.push('/confirmation');
+    }, 2000);
   } catch (error) {
     console.error('Erreur soumission :', error);
-    submitMessage.value = error.message || "Une erreur est survenue lors de l'envoi.";
+    submitMessage.value = error.message || 'Une erreur est survenue.';
   } finally {
     isSubmitting.value = false;
   }
@@ -180,7 +176,6 @@ function onBack() {
         <h2 class="sectionTitle">Conclusion</h2>
 
         <form class="form" @submit.prevent="onSubmit">
-
           <!-- Commentaires libres -->
           <div class="field">
             <label class="label">
@@ -193,15 +188,22 @@ function onBack() {
               v-model.trim="formStore.conclusion"
               type="text"
             />
-            <p v-if="errors.conclusion" class="error">{{ errors.conclusion }}</p>
+            <p v-if="errors.conclusion" class="error">
+              {{ errors.conclusion }}
+            </p>
           </div>
 
           <!-- Documents -->
           <div class="field">
             <label class="label">Documents :</label>
             <div class="documentsText">
-              <div>• Une démonstration sous forme de vidéo de votre solution</div>
-              <div>• Un PowerPoint ou un document présentant votre projet (pdf ou ppt)</div>
+              <div>
+                • Une démonstration sous forme de vidéo de votre solution
+              </div>
+              <div>
+                • Un PowerPoint ou un document présentant votre projet (pdf ou
+                ppt)
+              </div>
               <div>• Autre(s) document(s)</div>
             </div>
 
@@ -233,7 +235,9 @@ function onBack() {
                   class="removeBtn"
                   @click="removeFile(index)"
                   title="Supprimer ce fichier"
-                >✕</button>
+                >
+                  ✕
+                </button>
               </div>
             </div>
           </div>
@@ -241,7 +245,10 @@ function onBack() {
           <!-- Message retour serveur -->
           <p
             v-if="submitMessage"
-            :class="['submitMessage', submitMessage.includes('succès') ? 'success' : 'errorText']"
+            :class="[
+              'submitMessage',
+              submitMessage.includes('succès') ? 'success' : 'errorText',
+            ]"
           >
             {{ submitMessage }}
           </p>
@@ -252,10 +259,11 @@ function onBack() {
               <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
             </p>
             <button class="btn" type="submit" :disabled="isSubmitting">
-              {{ isSubmitting ? 'Envoi en cours...' : 'Soumettre ma candidature' }}
+              {{
+                isSubmitting ? 'Envoi en cours...' : 'Soumettre ma candidature'
+              }}
             </button>
           </div>
-
         </form>
       </section>
     </main>
