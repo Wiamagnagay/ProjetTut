@@ -29,49 +29,6 @@ function onBack() {
   router.push('/page7');
 }
 
-async function inscrireUtilisateur(id_utilisateur, idExpe, role) {
-  const url = `https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${id_utilisateur}/inscriptions?idExpe=${idExpe}&role=${role}`;
-  try {
-    const reponse = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({})
-    });
-
-    if (!reponse.ok) throw new Error(`Erreur ${reponse.status}`);
-    return await reponse.json();
-  } catch (erreur) {
-    console.error("Échec de la liaison à l'expérience :", erreur);
-    return false;
-  }
-}
-
-async function inscrireProcheAExp() {
-  const idExpe = Number(formStore.experimentationChoisie);
-  const rolePrincipal = formStore.role.toUpperCase();
-  const roleProche = rolePrincipal === 'SENIOR' ? 'AIDANT' : 'SENIOR';
-
-  const id_proche = formStore.idProcheGenere; 
-
-  if (!id_proche) {
-    console.error("Impossible d'inscrire le proche : ID manquant !");
-    return false;
-  }
-
-  const inscriptionOk = await inscrireUtilisateur(id_proche, idExpe, roleProche);
-
-  if (inscriptionOk !== false) {
-    console.log("Le proche a bien été relié à l'expérience !");
-    return true;
-  } else {
-    console.error("Échec de la liaison du proche à l'expérience.");
-    return false;
-  }
-}
-
 async function onNext() {
   if (!validate()) return;
 
@@ -117,8 +74,6 @@ async function onNext() {
         emailNonPro: formStore.procheEmail ? formStore.procheEmail.trim() : '',
       };
 
-      console.log("Payload envoyé pour l'upgrade :", payloadNonPro);
-
       const response = await fetch(`https://formulaire-ri2s-1.onrender.com/api/utilisateurs/${idProcheExistant}/profil-non-pro`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -126,19 +81,11 @@ async function onNext() {
       });
 
       if (!response.ok) {
-        const detailErreur = await response.text();
-        console.error("Détail de l'erreur 500 du serveur :", detailErreur);
         throw new Error("Erreur lors de l'upgrade du proche en Non-Pro");
       }
     }
 
-    const expeLiee = await inscrireProcheAExp();
-
-    if (expeLiee) {
-      router.push('/page9');
-    } else {
-      alert("Le proche a été enregistré, mais n'a pas pu être relié à l'expérience.");
-    }
+    router.push('/page9');
 
   } catch (error) {
     console.error('Erreur lors du traitement du proche :', error);
