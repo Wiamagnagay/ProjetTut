@@ -191,7 +191,7 @@ async function onNext() {
             <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
           </p>
           
-          <div style="display: flex; gap: 15px; align-items: center;">
+          <div class="buttons">
             
             <button 
               v-if="!formStore.necessiteAidant" 
@@ -278,6 +278,13 @@ input[type='text'] {
 .btn-skip:hover {
   border-color: var(--green);
   color: var(--green);
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px; 
+  width: 100%;
 }
 
 </style>

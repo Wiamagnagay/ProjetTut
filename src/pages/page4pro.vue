@@ -72,23 +72,6 @@ function onAddPatient() {
   font-family: 'DM Sans', sans-serif;
 }
 
-.btn-choice {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  border: 2px solid #cee;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
-  text-align: left;
-  transition: transform 0.2s, box-shadow 0.2s;
-  font-family: 'DM Sans', sans-serif;
-}
-
-.btn-choice.outline {
-  border-color: #cee;
-}
 
 .icon {
   font-size: 2rem;
@@ -109,5 +92,21 @@ function onAddPatient() {
 
 .titre_choix {
   font-family: 'DM Sans', sans-serif;
+}
+
+
+.btn-choice {
+  flex: 1;
+  min-width: 200px;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn-choice:hover {
+  border-color: #4caf50;
+  background-color: #f0fff0;
 }
 </style>

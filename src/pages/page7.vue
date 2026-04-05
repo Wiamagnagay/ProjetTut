@@ -39,7 +39,7 @@ function validate() {
   if (!formStore.procheCodePostal.trim()) {
     errors.procheCodePostal = 'Code postal obligatoire';
   } else if (!cpRegex.test(formStore.procheCodePostal.trim())) {
-    errors.procheCodePostal = 'Veuillez vérifier le code postal (ex: 75001)';
+    errors.procheCodePostal = 'Veuillez vérifier le code postal (ex: 81100)';
   }
 
   return (
@@ -130,12 +130,14 @@ function onNext() {
           </div>
 
           <div class="bottomRow">
-            <p class="help">
-              En cas de difficulté merci de nous contacter à cette adresse :
-              <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
-            </p>
-            <button class="btn" type="submit">Continuer</button>
-          </div>
+          <p class="help">
+            En cas de difficulté merci de nous contacter :
+            <a href="mailto:contact@ri2s.fr">contact@ri2s.fr</a>
+          </p>
+          <button class="btn" type="submit" @click.prevent="onNext">
+            Continuer
+          </button>
+        </div>
         </form>
       </section>
     </main>
