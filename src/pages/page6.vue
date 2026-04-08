@@ -80,7 +80,7 @@ function onNext() {
 <template>
   <div class="page">
     <header class="topbar">
-      <img src="@/assets/logo.png" alt="RI2S" class="logo" />
+      <img src="@/assets/logoRI2S.png" alt="RI2S" class="logo" />
     </header>
 
     <main class="main">
